@@ -26,11 +26,9 @@ const upsertProductRecord = async (product: Stripe.Product) => {
     .from("products")
     .upsert([productData]);
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
-  console.log(`product inserted/updated: ${product.id}`);
+  console.log(`Product inserted/updated: ${product.id}`);
 };
 
 const upsertPriceRecord = async (price: Stripe.Price) => {
@@ -52,9 +50,7 @@ const upsertPriceRecord = async (price: Stripe.Price) => {
     .from("prices")
     .upsert([priceData]);
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
   console.log(`Price inserted/updated: ${price.id}`);
 };
@@ -89,9 +85,7 @@ const createOrRetrieveCustomer = async ({
         stripe_customer_id: customer.id,
       }]);
 
-    if (supabaseError) {
-      throw supabaseError;
-    }
+    if (supabaseError) throw supabaseError;
 
     console.log(`New customer created and inserted for ${uuid}`);
     return customer.id;
@@ -150,6 +144,8 @@ const manageSubscriptionStatusChange = async (
     // @ts-ignore
     status: subscription.status,
     price_id: subscription.items.data[0].price.id,
+    // @ts-ignore
+    quantity: subscription.quantity,
     cancel_at_period_end: subscription.cancel_at_period_end,
     cancel_at: subscription.cancel_at ? toDateTime(subscription.cancel_at).toISOString() : null,
     canceled_at: subscription.canceled_at ? toDateTime(subscription.canceled_at).toISOString() : null,
