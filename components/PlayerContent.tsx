@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Song } from "@/types";
 import { BsPauseFill, BsPlayFill } from "react-icons/bs";
 import { AiFillStepBackward, AiFillStepForward } from "react-icons/ai";
 import { HiSpeakerWave, HiSpeakerXMark } from "react-icons/hi2";
 import usePlayer from "@/hooks/usePlayer";
 import useSound from "use-sound";
+import useInterval from "@/hooks/useInterval";
 
 import MediaItem from "./MediaItem";
 import LikeButton from "./LikeButton";
@@ -17,12 +18,25 @@ interface PlayerContentProps {
   songUrl: string;
 }
 
+const formatTime = (time: number | null) => {
+  if (!time || isNaN(time)) {
+    return "-:--";
+  }
+  const mins = Math.floor(time / 60);
+  const secs = Math.floor(time - Math.floor(time / 60) * 60);
+
+  return mins + ":" + (secs < 10 ? `0${secs}` : secs);
+}
+
 const PlayerContent: React.FC<PlayerContentProps> = ({
   song,
   songUrl
 }) => {
   const player = usePlayer();
   const [isPlaying, setIsPlaying] = useState(false);
+  const [seconds, setSeconds] = useState(0);
+  const [time, setTime] = useState("-:--");
+  const [showRemainingTime, setShowRemainingTime] = useState(false);
 
   const Icon = isPlaying ? BsPauseFill : BsPlayFill;
   const VolumeIcon = player.volume === 0 ? HiSpeakerXMark : HiSpeakerWave;
@@ -57,7 +71,7 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
     player.setId(prevSong);
   };
 
-  const [play, { pause, sound }] = useSound(
+  const [play, { pause, sound, duration }] = useSound(
     songUrl,
     {
       volume: player.volume,
@@ -78,6 +92,20 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
       sound?.unload();
     }
   }, [sound]);
+
+  useInterval(() => {
+    if (sound) {
+      setSeconds(sound.seek([]));
+      setTime(formatTime(sound.seek([])));
+    }
+  }, 1000);
+
+  const trackDuration = useMemo(() => {
+    if (showRemainingTime) {
+      return "-" + formatTime((duration as number) / 1000 - seconds + 0.99);
+    }
+    return formatTime((duration as number) / 1000);
+  }, [duration, showRemainingTime, seconds]);
 
   const handlePlay = () => {
     if (!isPlaying) {
@@ -141,49 +169,77 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
           hidden
           h-full
           md:flex
-          justify-center
-          items-center
+          flex-col
+          gap-2
           w-full
           max-w-[722px]
-          gap-x-6
         "
       >
-        <AiFillStepBackward
-          onClick={onPlayPrev}
-          size={30}
-          className="
-            text-neutral-400
-            cursor-pointer
-            hover:text-white
-            transition
-          "
-        />
         <div
-          onClick={handlePlay}
           className="
             flex
-            items-center
             justify-center
-            h-10
-            w-10
-            rounded-full
-            bg-white
-            p-1
-            cursor-pointer
+            items-center
+            gap-x-6
           "
         >
-          <Icon size={30} className="text-black" />
+          <AiFillStepBackward
+            onClick={onPlayPrev}
+            size={25}
+            className="
+              text-neutral-400
+              cursor-pointer
+              hover:text-white
+              transition
+            "
+          />
+          <div
+            onClick={handlePlay}
+            className="
+              flex
+              items-center
+              justify-center
+              h-8
+              w-8
+              rounded-full
+              bg-white
+              p-1
+              cursor-pointer
+            "
+          >
+            <Icon size={25} className="text-black" />
+          </div>
+          <AiFillStepForward
+            onClick={onPlayNext}
+            size={25}
+            className="
+              text-neutral-400
+              cursor-pointer
+              hover:text-white
+              transition
+            "
+          />
         </div>
-        <AiFillStepForward
-          onClick={onPlayNext}
-          size={30}
-          className="
-            text-neutral-400
-            cursor-pointer
-            hover:text-white
-            transition
-          "
-        />
+        <div className="relative flex items-center gap-1">
+          <div className="absolute right-[calc(100%+7px)] whitespace-nowrap text-xs text-neutral-400 select-none">
+            {time}
+          </div>
+          <Slider
+            ariaLabel="Track"
+            value={seconds}
+            onChange={(value) => {
+              sound?.seek([value]);
+              setSeconds(sound?.seek([]));
+              setTime(formatTime(sound.seek([])));
+            }}
+            defaultValue={0}
+            max={(duration as number) / 1000}
+            step={1}
+          />
+          <div onClick={() => setShowRemainingTime(prev => !prev)} className="absolute left-[calc(100%+7px)] whitespace-nowrap text-xs text-neutral-400 select-none">
+            {trackDuration}
+          </div>
+        </div>
       </div>
 
       <div className="hidden md:flex w-full justify-end pr-2">
@@ -194,8 +250,12 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
             size={34}
           />
           <Slider
+            ariaLabel="Volume"
             value={player.volume}
             onChange={(value) => player.setVolume(value)}
+            defaultValue={1}
+            max={1}
+            step={0.005}
           />
         </div>
       </div>

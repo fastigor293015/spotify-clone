@@ -3,13 +3,21 @@
 import * as RadixSlider from "@radix-ui/react-slider";
 
 interface SliderProps {
+  ariaLabel: string;
   value?: number;
   onChange?: (value: number) => void;
+  defaultValue?: number;
+  max?: number;
+  step?: number;
 }
 
 const Slider: React.FC<SliderProps> = ({
+  ariaLabel,
   value = 1,
-  onChange
+  onChange,
+  defaultValue = 0,
+  max = 1,
+  step = 1,
 }) => {
   const handleChange = (newValue: number[]) => {
     onChange?.(newValue[0]);
@@ -18,20 +26,21 @@ const Slider: React.FC<SliderProps> = ({
   return (
     <RadixSlider.Root
       className="
+        group
         relative
         flex
         items-center
         select-none
         touch-none
         w-full
-        h-10
+        h-3
       "
-      defaultValue={[1]}
+      defaultValue={[defaultValue]}
       value={[value]}
       onValueChange={handleChange}
-      max={1}
-      step={0.1}
-      aria-label="Volume"
+      max={max}
+      step={step}
+      aria-label={ariaLabel}
     >
       <RadixSlider.Track
         className="
@@ -48,9 +57,11 @@ const Slider: React.FC<SliderProps> = ({
             bg-white
             rounded-full
             h-full
+            group-hover:bg-green-500
           "
         />
       </RadixSlider.Track>
+      <RadixSlider.Thumb className="block h-3 w-3 rounded-full bg-white opacity-0 group-hover:opacity-100" />
     </RadixSlider.Root>
   );
 }

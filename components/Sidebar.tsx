@@ -41,12 +41,13 @@ const Sidebar: React.FC<SidebarProps> = ({
   ], [pathname]);
 
   return (
-    <div className={twMerge(`
-      flex
-      h-full
-    `,
-      player.activeId && "h-[calc(100%-80px)]"
-    )}>
+    <div
+      className={twMerge(`
+        flex
+        h-full
+      `)}
+      style={{ paddingBottom: 80 }}
+    >
       <div
         className="
           hidden
