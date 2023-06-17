@@ -4,15 +4,19 @@ import useLoadImage from "@/hooks/useLoadImage";
 import usePlayer from "@/hooks/usePlayer";
 import { Song } from "@/types";
 import Image from "next/image";
+import { BsPauseFill, BsPlayFill } from "react-icons/bs";
+import { twMerge } from "tailwind-merge";
 
 interface MediaItemProps {
   data: Song;
   onClick?: (id: string) => void;
+  number?: number;
 }
 
 const MediaItem: React.FC<MediaItemProps> = ({
   data,
-  onClick
+  onClick,
+  number
 }) => {
   const player = usePlayer();
   const imageUrl = useLoadImage(data);
@@ -25,10 +29,13 @@ const MediaItem: React.FC<MediaItemProps> = ({
     return player.setId(data.id);
   }
 
+  const Icon = player.isPlaying && player.activeId === data.id ? BsPauseFill : BsPlayFill;
+
   return (
     <div
       onClick={handleClick}
       className="
+        group
         flex
         items-center
         gap-x-3
@@ -39,6 +46,28 @@ const MediaItem: React.FC<MediaItemProps> = ({
         rounded-md
       "
     >
+      {number && (
+        <div className="flex items-center justify-center w-4 h-4 ml-2 mr-1">
+          <div className={twMerge(`text-neutral-400 group-hover:hidden`, player.activeId === data.id && "text-green-500")}>
+            {player.isPlaying && player.activeId === data.id
+            ? <Image width={14} height={14} src="/images/equaliser-animated.gif" alt="Equalizer" />
+            : number}
+          </div>
+          <div className="hidden group-hover:block" onClick={() => {
+            if (player.activeId !== data.id) {
+              return player.setId(data.id);
+            }
+            if (!player.pause || !player.play) return;
+            if (player.isPlaying) {
+              player.pause();
+            } else {
+              player.play();
+            }
+          }}>
+            <Icon size={22} />
+          </div>
+        </div>
+      )}
       <div
         className="
           relative

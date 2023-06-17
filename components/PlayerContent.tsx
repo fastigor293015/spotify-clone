@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Song } from "@/types";
 import { BsPauseFill, BsPlayFill } from "react-icons/bs";
 import { AiFillStepBackward, AiFillStepForward } from "react-icons/ai";
-import { HiSpeakerWave, HiSpeakerXMark } from "react-icons/hi2";
+import { HiOutlineQueueList, HiSpeakerWave, HiSpeakerXMark } from "react-icons/hi2";
 import usePlayer from "@/hooks/usePlayer";
 import useSound from "use-sound";
 import useInterval from "@/hooks/useInterval";
@@ -12,6 +12,8 @@ import useInterval from "@/hooks/useInterval";
 import MediaItem from "./MediaItem";
 import LikeButton from "./LikeButton";
 import Slider from "./Slider";
+import { usePathname, useRouter } from "next/navigation";
+import { twMerge } from "tailwind-merge";
 
 interface PlayerContentProps {
   song: Song;
@@ -32,6 +34,8 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
   song,
   songUrl
 }) => {
+  const router = useRouter();
+  const pathname = usePathname();
   const player = usePlayer();
   const [seconds, setSeconds] = useState(0);
   const [time, setTime] = useState("-:--");
@@ -115,14 +119,6 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
       pause();
     }
   }, [player.isPlaying, play, pause]);
-
-  // useEffect(() => {
-  //   if (player.isPlaying) {
-  //     play();
-  //   } else {
-  //     pause();
-  //   }
-  // }, [player.isPlaying]);
 
   const toggleMute = () => {
     if (player.volume === 0) {
@@ -252,12 +248,25 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
         </div>
       </div>
 
-      <div className="hidden md:flex w-full justify-end pr-2">
+      <div className="hidden md:flex items-center gap-x-3 w-full justify-end pr-2">
+        <div className={twMerge(`relative text-white cursor-pointer`, pathname === "/queue" && "text-green-500")}>
+          <HiOutlineQueueList onClick={() => pathname !== "/queue" ? router.push("/queue") : router.back()} size={20} />
+          <div className={twMerge(`
+            absolute
+            top-[calc(100%+2px)]
+            left-[calc(50%-2px)]
+            w-1
+            h-1
+            rounded-full
+            bg-current
+            opacity-0
+          `, pathname === "/queue" && "opacity-100")} />
+        </div>
         <div className="flex items-center gap-x-2 w-[120px]">
           <VolumeIcon
             onClick={toggleMute}
             className="cursor-pointer"
-            size={34}
+            size={24}
           />
           <Slider
             ariaLabel="Volume"
