@@ -15,8 +15,22 @@ const QueueContent = () => {
   }, [songs]);
 
   const firstInQueue = useMemo(() => songs.findIndex((song) => song.id === player.activeId), [player, songs]);
+  const nextSongs = useMemo(() => songs.slice(firstInQueue + 1), [songs, firstInQueue]);
 
-  if (songs.length === 0) return null;
+  if (songs.length === 0) {
+    return (
+      <div className="
+        flex
+        flex-col
+        gap-y-2
+        w-full
+        px-6
+        text-neutral-400
+      ">
+        You have no tracks in queue.
+      </div>
+    )
+  };
 
   return (
     <div className="mb-7 px-6">
@@ -34,21 +48,21 @@ const QueueContent = () => {
         </div>
       </div>
 
-      <div className="mb-4">
+      {nextSongs.length > 0 && (<div className="mb-4">
         <h2 className="mb-1 text-neutral-400 font-bold text-md">
           Next up
         </h2>
-        {songs.slice(firstInQueue + 1).map((song, i) => (
+        {nextSongs.map((song, i) => (
           <div key={song.id} className="flex gap-x-4">
             <MediaItem
               number={i + 2}
               data={song}
               onClick={() => {}}
             />
-            <LikeButton songId={songs[0].id} />
+            <LikeButton songId={song.id} />
           </div>
         ))}
-      </div>
+      </div>)}
     </div>
   );
 }

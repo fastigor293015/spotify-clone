@@ -2,6 +2,7 @@ import getSongsByTitle from "@/actions/getSongsByTitle";
 import Header from "@/components/Header";
 import SearchInput from "@/components/SearchInput";
 import SearchContent from "./components/SearchContent";
+import Box from "@/components/Box";
 
 interface SearchProps {
   searchParams: {
@@ -15,17 +16,14 @@ const Search = async ({ searchParams }: SearchProps) => {
   const songs = await getSongsByTitle(searchParams.title);
 
   return (
-    <div
+    <Box
       className="
-        bg-neutral-900
-        rounded-lg
         h-full
-        w-full
         overflow-hidden
         overflow-y-auto
       "
     >
-      <Header className="from-neutral-900">
+      <Header className="text-neutral-900">
         <div className="mb-2 flex flex-col gap-y-6">
           <h1 className="text-white text-3xl font-semibold">
             Search
@@ -34,7 +32,7 @@ const Search = async ({ searchParams }: SearchProps) => {
         </div>
       </Header>
       <SearchContent songs={songs} />
-    </div>
+    </Box>
   )
 }
 

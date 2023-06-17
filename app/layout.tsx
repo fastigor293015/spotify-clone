@@ -28,7 +28,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={`${font.className} grid grid-rows-[minmax(400px,1fr),auto] h-full min-h-full`}>
+      <body className={`${font.className} grid grid-rows-[minmax(200px,1fr),auto] h-full`}>
         <ToasterProvider />
         <SupabaseProvider>
           <UserProvider>

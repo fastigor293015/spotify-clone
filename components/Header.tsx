@@ -12,6 +12,7 @@ import { useUser } from "@/hooks/useUser";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import Button from "./Button";
 import usePlayer from "@/hooks/usePlayer";
+import { useEffect, useState } from "react";
 
 interface HeaderProps {
   children: React.ReactNode;
@@ -25,6 +26,22 @@ const Header: React.FC<HeaderProps> = ({
   const player = usePlayer();
   const authModal = useAuthModal();
   const router = useRouter();
+  const [bgOpacity, setBgOpacity] = useState(0);
+
+  useEffect(() => {
+    const main = document.body.querySelector("main")?.querySelector("div");
+
+    const handleScroll = () => {
+      if (!main) return;
+      console.log(main.scrollTop);
+      const newOpacity = main.scrollTop > 150 ? 150 : main?.scrollTop
+      setBgOpacity(newOpacity / 150);
+    }
+
+    // console.log(scrollY)
+    main?.addEventListener("scroll", handleScroll);
+    return () => main?.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const supabaseClient = useSupabaseClient();
   const { user } = useUser();
@@ -43,23 +60,21 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <div
-      className={twMerge(`
-        h-fit
-        bg-gradient-to-b
-        from-emerald-800
-        p-6
-      `,
-        className
-      )}
-    >
-      <div className="
+    <>
+      <div className={twMerge(`
+        sticky
+        top-0
+        z-10
         w-full
-        mb-4
+        mb-2
+        py-4
+        px-6
         flex
         items-center
         justify-between
-      ">
+        text-emerald-800
+      `, className)}>
+        <div className="absolute inset-0 -z-[1] bg-current" style={{ opacity: bgOpacity }} />
         <div className="
           hidden
           md:flex
@@ -180,8 +195,23 @@ const Header: React.FC<HeaderProps> = ({
           )}
         </div>
       </div>
-      {children}
-    </div>
+      <div
+        className={twMerge(`
+          absolute
+          top-0
+          w-full
+          bg-gradient-to-b
+          from-current
+          h-80
+          text-emerald-800
+        `,
+          className
+        )}
+      />
+      <div className="relative z-[1] p-6 pt-0">
+        {children}
+      </div>
+    </>
   );
 }
 
