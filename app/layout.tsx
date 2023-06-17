@@ -1,15 +1,15 @@
-import Sidebar from '@/components/Sidebar'
-import './globals.css'
-import { Figtree } from 'next/font/google'
-import SupabaseProvider from '@/providers/SupabaseProvider'
-import UserProvider from '@/providers/UserProvider'
-import ModalProvider from '@/providers/ModalProvider'
-import ToasterProvider from '@/providers/ToasterProvider'
-import getSongsByUserId from '@/actions/getSongsByUserId'
-import Player from '@/components/Player'
-import getActiveProductsWithPrices from '@/actions/getActiveProductsWithPrices'
+import { Figtree } from 'next/font/google';
+import SupabaseProvider from '@/providers/SupabaseProvider';
+import UserProvider from '@/providers/UserProvider';
+import ModalProvider from '@/providers/ModalProvider';
+import ToasterProvider from '@/providers/ToasterProvider';
+import getSongsByUserId from '@/actions/getSongsByUserId';
+import getActiveProductsWithPrices from '@/actions/getActiveProductsWithPrices';
+import Sidebar from '@/components/Sidebar';
+import Player from '@/components/Player';
+import './globals.css';
 
-const font = Figtree({ subsets: ['latin'] })
+const font = Figtree({ subsets: ['latin'] });
 
 export const metadata = {
   title: 'Spotify Clone',
@@ -28,7 +28,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={font.className}>
+      <body className={`${font.className} grid grid-rows-[minmax(400px,1fr),auto] h-full min-h-full`}>
         <ToasterProvider />
         <SupabaseProvider>
           <UserProvider>

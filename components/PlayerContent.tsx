@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Song } from "@/types";
 import { BsPauseFill, BsPlayFill } from "react-icons/bs";
 import { AiFillStepBackward, AiFillStepForward } from "react-icons/ai";
@@ -33,12 +33,11 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
   songUrl
 }) => {
   const player = usePlayer();
-  const [isPlaying, setIsPlaying] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [time, setTime] = useState("-:--");
   const [showRemainingTime, setShowRemainingTime] = useState(false);
 
-  const Icon = isPlaying ? BsPauseFill : BsPlayFill;
+  const Icon = player.isPlaying ? BsPauseFill : BsPlayFill;
   const VolumeIcon = player.volume === 0 ? HiSpeakerXMark : HiSpeakerWave;
 
   const onPlayNext = () => {
@@ -75,18 +74,20 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
     songUrl,
     {
       volume: player.volume,
-      onplay: () => setIsPlaying(true),
+      onplay: () => player.setIsPlaying(true),
       onend: () => {
-        setIsPlaying(false);
+        player.setIsPlaying(false);
         onPlayNext();
       },
-      onpause: () => setIsPlaying(false),
+      onpause: () => player.setIsPlaying(false),
       format: ["mp3"]
     }
   );
 
   useEffect(() => {
     sound?.play();
+    player.play = play;
+    player.pause = pause;
 
     return () => {
       sound?.unload();
@@ -107,13 +108,21 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
     return formatTime((duration as number) / 1000);
   }, [duration, showRemainingTime, seconds]);
 
-  const handlePlay = () => {
-    if (!isPlaying) {
+  const handlePlay = useCallback(() => {
+    if (!player.isPlaying) {
       play();
     } else {
       pause();
     }
-  };
+  }, [player.isPlaying, play, pause]);
+
+  // useEffect(() => {
+  //   if (player.isPlaying) {
+  //     play();
+  //   } else {
+  //     pause();
+  //   }
+  // }, [player.isPlaying]);
 
   const toggleMute = () => {
     if (player.volume === 0) {
@@ -166,6 +175,7 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
 
       <div
         className="
+          justify-self-center
           hidden
           h-full
           md:flex

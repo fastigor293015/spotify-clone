@@ -41,13 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   ], [pathname]);
 
   return (
-    <div
-      className={twMerge(`
-        flex
-        h-full
-      `)}
-      style={{ paddingBottom: 80 }}
-    >
+    <div className="flex h-full">
       <div
         className="
           hidden

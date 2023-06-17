@@ -1,5 +1,7 @@
 "use client";
 
+import usePlayer from "@/hooks/usePlayer";
+import { Song } from "@/types";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FaPlay } from "react-icons/fa";
@@ -8,18 +10,27 @@ interface ListItemProps {
   image: string;
   name: string;
   href: string;
+  songs: Song[];
 }
 
 const ListItem: React.FC<ListItemProps> = ({
   image,
   name,
-  href
+  href,
+  songs
 }) => {
   const router = useRouter();
+  const player = usePlayer();
 
   const onClick  = () => {
     // Add authentication before push
     router.push(href);
+  }
+
+  const handlePlayBtn = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    player.setId(songs[0].id)
+    player.setIds(songs.map((song) => song.id))
   }
 
   return (
@@ -55,6 +66,7 @@ const ListItem: React.FC<ListItemProps> = ({
         {name}
       </p>
       <div
+        onClick={handlePlayBtn}
         className="
           absolute
           transition

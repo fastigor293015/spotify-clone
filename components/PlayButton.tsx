@@ -1,10 +1,31 @@
 "use client";
 
-import { FaPlay } from "react-icons/fa";
+import usePlayer from "@/hooks/usePlayer";
+import { useCallback } from "react";
+import { FaPause, FaPlay } from "react-icons/fa";
 
-const PlayButton = () => {
+interface PlayButtonProps {
+  isActive: boolean;
+}
+
+const PlayButton: React.FC<PlayButtonProps> = ({
+  isActive
+}) => {
+  const player = usePlayer();
+
+  const handlePlay = useCallback(() => {
+    if (!player.play || !player.pause || !isActive) return;
+
+    if (!player.isPlaying) {
+      player.play();
+    } else {
+      player.pause();
+    }
+  }, [player, isActive]);
+
   return (
     <button
+      onClick={handlePlay}
       className="
         transition
         opacity-0
@@ -20,7 +41,11 @@ const PlayButton = () => {
         hover:scale-110
       "
     >
-      <FaPlay className="text-black" />
+      {isActive && player.isPlaying ? (
+        <FaPause className="text-black" />
+      ) : (
+        <FaPlay className="text-black" />
+      )}
     </button>
   );
 }

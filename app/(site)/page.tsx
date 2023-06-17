@@ -3,11 +3,13 @@ import Box from "@/components/Box";
 import Header from "@/components/Header";
 import ListItem from "@/components/ListItem";
 import PageContent from "./components/PageContent";
+import getLikedSongs from "@/actions/getLikedSongs";
 
 export const revalidate = 0;
 
 export default async function Home() {
   const songs = await getSongs();
+  const likedSongs = await getLikedSongs();
 
   return (
     <Box
@@ -43,6 +45,7 @@ export default async function Home() {
               image="/images/liked.png"
               name="Liked songs"
               href="liked"
+              songs={likedSongs}
             />
           </div>
         </div>
