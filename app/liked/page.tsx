@@ -1,4 +1,3 @@
-import getLikedSongs from "@/actions/getLikedSongs";
 import Header from "@/components/Header";
 import Image from "next/image";
 import LikedContent from "./components/LikedContent";
@@ -7,7 +6,6 @@ import Box from "@/components/Box";
 export const revalidate = 0;
 
 const Liked = async () => {
-  const songs = await getLikedSongs();
 
   return (
     <Box
@@ -67,7 +65,9 @@ const Liked = async () => {
           </div>
         </div>
       </Header>
-      <LikedContent songs={songs} />
+      <div className="relative z-[1]">
+        <LikedContent />
+      </div>
     </Box>
   );
 }

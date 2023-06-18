@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSessionContext } from "@supabase/auth-helpers-react";
+import { toast } from "react-hot-toast";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 
 import useAuthModal from "@/hooks/useAuthModal";
 import { useUser } from "@/hooks/useUser";
-import { toast } from "react-hot-toast";
+import useLikedSongs from "@/hooks/useLikedSongs";
 
 interface LikeButtonProps {
   songId: string;
@@ -19,10 +20,14 @@ const LikeButton: React.FC<LikeButtonProps> = ({
   const router = useRouter();
   const { supabaseClient } = useSessionContext();
 
+  const likedSongs = useLikedSongs();
   const authModal = useAuthModal();
   const { user } = useUser();
 
-  const [isLiked, setIsLiked] = useState(false);
+  // const [isLiked, setIsLiked] = useState(likedSongs);
+  const isLiked = useMemo(() => {
+    return Boolean(likedSongs.songs.find((song) => songId === song));
+  }, [likedSongs, songId]);
 
   useEffect(() => {
     if (!user?.id) {
@@ -37,8 +42,8 @@ const LikeButton: React.FC<LikeButtonProps> = ({
         .eq("song_id", songId)
         .single();
 
-      if (!error && data) {
-        setIsLiked(true);
+      if (!error && data && !isLiked) {
+        likedSongs.toggle(songId);
       }
     };
 
@@ -62,7 +67,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({
       if (error) {
         toast.error(error.message);
       } else {
-        setIsLiked(false);
+        likedSongs.toggle(songId);
       }
     } else {
       const { error } = await supabaseClient
@@ -75,12 +80,10 @@ const LikeButton: React.FC<LikeButtonProps> = ({
       if (error) {
         toast.error(error.message);
       } else {
-        setIsLiked(true);
-        toast.success("Liked!");
+        likedSongs.toggle(songId);
+        toast.success("Liked");
       }
     }
-
-    router.refresh();
   }
 
   return (

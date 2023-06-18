@@ -48,12 +48,12 @@ const MediaItem: React.FC<MediaItemProps> = ({
     >
       {number && (
         <div className="flex items-center justify-center w-4 h-4 ml-2 mr-1">
-          <div className={twMerge(`text-neutral-400 group-hover:hidden`, player.activeId === data.id && "text-green-500")}>
+          <div className={twMerge(`text-neutral-400 group-hover:hidden group-focus:hidden`, player.activeId === data.id && "text-green-500")}>
             {player.isPlaying && player.activeId === data.id
             ? <Image width={14} height={14} src="/images/equaliser-animated.gif" alt="Equalizer" />
             : number}
           </div>
-          <div className="hidden group-hover:block" onClick={() => {
+          <div className="hidden group-hover:block group-focus:hidden" onClick={() => {
             if (player.activeId !== data.id) {
               return player.setId(data.id);
             }
@@ -90,7 +90,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
         gap-y-1
         overflow-hidden
       ">
-        <p className="text-white truncate">
+        <p className={twMerge(`text-white truncate`, player.activeId === data.id && "text-green-500")}>
           {data.title}
         </p>
         <p className="text-neutral-400 text-sm truncate">

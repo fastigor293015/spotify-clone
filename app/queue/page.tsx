@@ -18,7 +18,9 @@ const Queue = () => {
           </h1>
         </div>
       </Header>
-      <QueueContent />
+      <div className="relative z-[1]">
+        <QueueContent />
+      </div>
     </Box>
   );
 }

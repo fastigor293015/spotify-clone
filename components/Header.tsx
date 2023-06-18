@@ -33,7 +33,6 @@ const Header: React.FC<HeaderProps> = ({
 
     const handleScroll = () => {
       if (!main) return;
-      console.log(main.scrollTop);
       const newOpacity = main.scrollTop > 150 ? 150 : main?.scrollTop
       setBgOpacity(newOpacity / 150);
     }
@@ -49,7 +48,6 @@ const Header: React.FC<HeaderProps> = ({
   const handleLogout = async () => {
     const { error } = await supabaseClient.auth.signOut();
     player.reset();
-    // TODO: Reset any playing songs
     router.refresh();
 
     if (error) {
@@ -200,10 +198,11 @@ const Header: React.FC<HeaderProps> = ({
           absolute
           top-0
           w-full
+          h-80
           bg-gradient-to-b
           from-current
-          h-80
           text-emerald-800
+          pointer-events-none
         `,
           className
         )}

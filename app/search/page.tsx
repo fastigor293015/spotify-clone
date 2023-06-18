@@ -31,7 +31,9 @@ const Search = async ({ searchParams }: SearchProps) => {
           <SearchInput />
         </div>
       </Header>
-      <SearchContent songs={songs} />
+      <div className="relative z-[1]">
+        <SearchContent songs={songs} />
+      </div>
     </Box>
   )
 }
