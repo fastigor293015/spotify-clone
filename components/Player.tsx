@@ -18,22 +18,12 @@ const Player = () => {
   }
 
   return (
-    <div
-      className="
-        bg-black
-        w-full
-        py-2
-        h-[80px]
-        px-4
-      "
-    >
-      <PlayerContent
-        // после переключения песни изменённый ключ пересоздаст данный компонент, и хук useSound сработает как надо
-        key={songUrl}
-        song={song}
-        songUrl={songUrl}
-      />
-    </div>
+    <PlayerContent
+      // после переключения песни изменённый ключ пересоздаст данный компонент, и хук useSound сработает как надо
+      key={songUrl}
+      song={song}
+      songUrl={songUrl}
+    />
   );
 }
 

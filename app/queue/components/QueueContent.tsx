@@ -4,11 +4,22 @@ import LikeButton from "@/components/LikeButton";
 import MediaItem from "@/components/MediaItem";
 import useGetSongsByIds from "@/hooks/useGetSongsByIds";
 import usePlayer from "@/hooks/usePlayer";
+import { useUser } from "@/hooks/useUser";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
 const QueueContent = () => {
   const player = usePlayer();
+  const router = useRouter();
   const { songs } = useGetSongsByIds(player.ids);
+
+  const { isLoading, user } = useUser();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace("/");
+    }
+  }, [isLoading, user, router]);
 
   useEffect(() => {
     console.log(songs);
