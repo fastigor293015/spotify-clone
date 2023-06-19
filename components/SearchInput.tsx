@@ -13,6 +13,8 @@ const SearchInput = () => {
   const debouncedValue = useDebounce<string>(value, 500);
 
   useEffect(() => {
+    if (!debouncedValue) return router.replace("/search");
+
     const query = {
       title: debouncedValue,
     }

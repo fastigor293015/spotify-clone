@@ -10,18 +10,18 @@ import { FaUserAlt } from "react-icons/fa";
 import useAuthModal from "@/hooks/useAuthModal";
 import { useUser } from "@/hooks/useUser";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
-import Button from "./Button";
+import Button from "./buttons/Button";
 import usePlayer from "@/hooks/usePlayer";
 import { useEffect, useState } from "react";
 
 interface HeaderProps {
   children: React.ReactNode;
-  className?: string;
+  bgcolor?: string;
 }
 
 const Header: React.FC<HeaderProps> = ({
   children,
-  className
+  bgcolor = ""
 }) => {
   const player = usePlayer();
   const authModal = useAuthModal();
@@ -70,9 +70,8 @@ const Header: React.FC<HeaderProps> = ({
         flex
         items-center
         justify-between
-        text-emerald-800
-      `, className)}>
-        <div className="absolute inset-0 -z-[1] bg-current" style={{ opacity: bgOpacity }} />
+      `)}>
+        <div className="absolute inset-0 -z-[1] bg-emerald-800" style={{ opacity: bgOpacity, backgroundColor: bgcolor }} />
         <div className="
           hidden
           md:flex
@@ -203,9 +202,8 @@ const Header: React.FC<HeaderProps> = ({
           from-current
           text-emerald-800
           pointer-events-none
-        `,
-          className
-        )}
+        `)}
+        style={{ backgroundColor: bgcolor }}
       />
       <div className="relative z-[1] p-6 pt-0">
         {children}

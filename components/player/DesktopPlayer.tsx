@@ -7,10 +7,10 @@ import { Song } from "@/types";
 import { AiFillStepBackward, AiFillStepForward } from "react-icons/ai";
 import { BsPauseFill, BsPlayFill } from "react-icons/bs";
 import { HiSpeakerWave, HiSpeakerXMark } from "react-icons/hi2";
-import MediaItem from "./MediaItem";
-import LikeButton from "./LikeButton";
-import Slider from "./Slider";
-import QueueButton from "./QueueButton";
+import MediaItem from "../MediaItem";
+import LikeButton from "../buttons/LikeButton";
+import Slider from "../Slider";
+import QueueButton from "../buttons/QueueButton";
 import Image from "next/image";
 import useLoadImage from "@/hooks/useLoadImage";
 

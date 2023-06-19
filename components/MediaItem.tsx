@@ -6,7 +6,7 @@ import { Song } from "@/types";
 import Image from "next/image";
 import { BsPauseFill, BsPlayFill } from "react-icons/bs";
 import { twMerge } from "tailwind-merge";
-import LikeButton from "./LikeButton";
+import LikeButton from "./buttons/LikeButton";
 
 interface MediaItemProps {
   data: Song;

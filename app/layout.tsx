@@ -10,7 +10,7 @@ import getActiveProductsWithPrices from '@/actions/getActiveProductsWithPrices';
 import getLikedSongs from '@/actions/getLikedSongs';
 
 import Sidebar from '@/components/Sidebar';
-import Player from '@/components/Player';
+import Player from '@/components/player/Player';
 
 import './globals.css';
 

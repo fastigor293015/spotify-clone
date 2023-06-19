@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import useInterval from "@/hooks/useInterval";
@@ -12,10 +12,11 @@ import { IoIosArrowDown } from "react-icons/io";
 import { RxDotsHorizontal } from "react-icons/rx";
 import { HiOutlineArrowPathRoundedSquare } from "react-icons/hi2";
 import { AiFillStepBackward, AiFillStepForward } from "react-icons/ai";
-import LikeButton from "./LikeButton";
-import Slider from "./Slider";
-import QueueButton from "./QueueButton";
+import LikeButton from "../buttons/LikeButton";
+import Slider from "../Slider";
+import QueueButton from "../buttons/QueueButton";
 import ColorThief from "color-thief-ts";
+import { getImageData } from "@/libs/utils";
 
 const formatTime = (time: number | null) => {
   if (!time || isNaN(time)) {
@@ -42,22 +43,28 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
   const imageUrl = useLoadImage(song);
   const [seconds, setSeconds] = useState(0);
   const [time, setTime] = useState("-:--");
+  const [imageData, setImageData] = useState<Uint8ClampedArray  | number[]>([0, 0, 0]);
+  // const [color, setColor] = useState<any>("");
+  const imageRef = useRef<HTMLImageElement | null>(null);
 
   const Icon = player.isPlaying ? BsPauseFill : BsPlayFill;
 
   useEffect(() => {
-    if (!imageUrl) return;
+    if (!imageRef.current) return;
+    imageRef.current.addEventListener("load", () => {
+      const newImageData = getImageData(imageRef.current!);
+      setImageData(newImageData);
+    })
 
-    const getColor = async () => {
-      const colorThief = new ColorThief();
-      const dominantColor = await colorThief.getColorAsync(imageUrl);
-      console.log(song.title);
-      console.log(song.author);
-      console.log(dominantColor);
-    }
-
-    getColor();
-  }, [imageUrl]);
+    // imageRef.current?.addEventListener("load", () => {
+    //   const colorThief = new ColorThief();
+    //   const palette = colorThief.getColor(imageRef.current!);
+    //   setColor(palette);
+    //   console.log(song.title);
+    //   console.log(song.author);
+    //   console.log(palette);
+    // })
+  }, [imageRef.current]);
 
   const trackDuration = useMemo(() => {
     return formatTime((duration as number) / 1000);
@@ -90,9 +97,18 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
 
   return (
     <>
-      <div className="fixed z-[20] right-2 bottom-2 left-2 block md:hidden rounded-md bg-[rgb(32,80,144)]">
+      <Image
+        ref={imageRef}
+        className="absolute -left-20 bottom-[150px]"
+        height={1}
+        width={1}
+        src={imageUrl || "/images/liked.png"}
+        alt="For picking color"
+      />
+      <div className="fixed z-[20] right-2 bottom-2 left-2 block md:hidden rounded-md transition duration-300" style={{ backgroundColor: `rgb(${imageData[0]}, ${imageData[1]}, ${imageData[2]})` }}>
         <div className="relative grid grid-cols-[auto,1fr,auto] items-center gap-2 h-14 w-full p-2 bg-black/[.48]" onClick={(e) => player.setIsMobilePlayerOpen(true)}>
           <Image
+            // ref={imageRef}
             width={40}
             height={40}
             src={imageUrl || "/images/liked.png"}
@@ -117,10 +133,10 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
 
         <AnimatePresence>
         {player.isMobilePlayerOpen && <motion.div
-          className="fixed inset-0 flex flex-col p-3 bg-[linear-gradient(rgba(0,0,0,.2),rgba(0,0,0,.6)_80%)] bg-[rgb(32,80,144)]"
+          className="fixed inset-0 flex flex-col p-3 bg-[linear-gradient(rgba(0,0,0,.2),rgba(0,0,0,.6)_80%)]"
           key={`${player.isMobilePlayerOpen}`}
           initial={{ y: "100%" }}
-          animate={{ y: 0 }}
+          animate={{ y: 0, backgroundColor: `rgb(${imageData[0]}, ${imageData[1]}, ${imageData[2]})` }}
           exit={{  y: "100%" }}
           transition={{ type: "keyframes", duration: .2 }}
         >

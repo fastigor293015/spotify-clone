@@ -5,7 +5,7 @@ import useSubscribeModal from "@/hooks/useSubscribeModal";
 import { useUser } from "@/hooks/useUser";
 import { Price, ProductWithPrice } from "@/types";
 
-import Button from "./Button";
+import Button from "../buttons/Button";
 import Modal from "./Modal";
 import { toast } from "react-hot-toast";
 import { postData } from "@/libs/helpers";

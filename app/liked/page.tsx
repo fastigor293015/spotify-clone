@@ -1,11 +1,26 @@
+"use client";
+
 import Header from "@/components/Header";
 import Image from "next/image";
 import LikedContent from "./components/LikedContent";
 import Box from "@/components/Box";
+import { useEffect, useRef, useState } from "react";
+import { getImageData } from "@/libs/utils";
 
-export const revalidate = 0;
+// export const revalidate = 0;
 
-const Liked = async () => {
+const Liked = () => {
+  const [imageData, setImageData] = useState<Uint8ClampedArray | number[]>([0,0,0]);
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (!imageRef.current) return;
+    imageRef.current.addEventListener("load", () => {
+      const newImageData = getImageData(imageRef.current!);
+      console.log(newImageData);
+      setImageData(newImageData);
+    })
+  }, [imageRef.current]);
 
   return (
     <Box
@@ -15,7 +30,15 @@ const Liked = async () => {
         overflow-y-auto
       "
     >
-      <Header>
+      <Image
+        ref={imageRef}
+        className="absolute -left-20 bottom-[150px]"
+        height={1}
+        width={1}
+        src={"/images/liked.png"}
+        alt="For picking color"
+      />
+      <Header bgcolor={`rgb(${imageData[0],imageData[1],imageData[2]})`}>
         <div className="mt-20">
           <div
             className="
