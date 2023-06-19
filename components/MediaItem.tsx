@@ -6,17 +6,20 @@ import { Song } from "@/types";
 import Image from "next/image";
 import { BsPauseFill, BsPlayFill } from "react-icons/bs";
 import { twMerge } from "tailwind-merge";
+import LikeButton from "./LikeButton";
 
 interface MediaItemProps {
   data: Song;
   onClick?: (id: string) => void;
   number?: number;
+  likeBtn?: boolean;
 }
 
 const MediaItem: React.FC<MediaItemProps> = ({
   data,
   onClick,
-  number
+  number,
+  likeBtn
 }) => {
   const player = usePlayer();
   const imageUrl = useLoadImage(data);
@@ -36,6 +39,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
       onClick={handleClick}
       className="
         group
+        flex-1
         flex
         items-center
         gap-x-3
@@ -85,6 +89,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
         />
       </div>
       <div className="
+        flex-1
         flex
         flex-col
         gap-y-1
@@ -97,6 +102,9 @@ const MediaItem: React.FC<MediaItemProps> = ({
           {data.author}
         </p>
       </div>
+      {likeBtn && (
+        <LikeButton className="mr-2" songId={data.id} />
+      )}
     </div>
   );
 }

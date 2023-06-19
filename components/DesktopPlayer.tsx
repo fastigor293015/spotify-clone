@@ -11,6 +11,8 @@ import MediaItem from "./MediaItem";
 import LikeButton from "./LikeButton";
 import Slider from "./Slider";
 import QueueButton from "./QueueButton";
+import Image from "next/image";
+import useLoadImage from "@/hooks/useLoadImage";
 
 const formatTime = (time: number | null) => {
   if (!time || isNaN(time)) {
@@ -34,6 +36,7 @@ const DesktopPlayer: React.FC<DesktopPlayerProps> = ({
   duration
 }) => {
   const player = usePlayer();
+  const imageUrl = useLoadImage(song);
   const [seconds, setSeconds] = useState(0);
   const [time, setTime] = useState("-:--");
   const [showRemainingTime, setShowRemainingTime] = useState(false);
@@ -84,8 +87,8 @@ const DesktopPlayer: React.FC<DesktopPlayerProps> = ({
       className="
         hidden
         md:grid
-        grid-cols-[1fr_auto]
-        md:grid-cols-3
+        grid-cols-3
+        gap-10
         w-full
         h-[80px]
         py-2
@@ -98,8 +101,28 @@ const DesktopPlayer: React.FC<DesktopPlayerProps> = ({
         w-full
         justify-start
       ">
-        <div className="flex items-center gap-x-4">
-          <MediaItem data={song} />
+        <div className="flex items-center gap-x-4 w-full">
+        {/* <MediaItem data={song} likeBtn /> */}
+          <div
+            className="
+              relative
+              min-h-[55px]
+              min-w-[55px]
+              rounded-md
+              overflow-hidden
+            "
+          >
+            <Image
+              fill
+              src={imageUrl || "/images/liked.png"}
+              alt="Media Item"
+              className="object-cover"
+            />
+          </div>
+          <div className="truncate">
+            <p className="text-text-sm truncate">{song.title}</p>
+            <p className="text-[11px] text-neutral-400 truncate">{song.author}</p>
+          </div>
           <LikeButton songId={song.id} />
         </div>
       </div>
@@ -107,10 +130,10 @@ const DesktopPlayer: React.FC<DesktopPlayerProps> = ({
       <div
         className="
           justify-self-center
-          h-full
           flex
           flex-col
           gap-2
+          h-full
           w-full
           max-w-[722px]
         "

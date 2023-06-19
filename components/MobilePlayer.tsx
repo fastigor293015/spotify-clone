@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import useInterval from "@/hooks/useInterval";
@@ -10,11 +10,12 @@ import { Song } from "@/types";
 import { BsPauseFill, BsPlayFill } from "react-icons/bs";
 import { IoIosArrowDown } from "react-icons/io";
 import { RxDotsHorizontal } from "react-icons/rx";
+import { HiOutlineArrowPathRoundedSquare } from "react-icons/hi2";
 import { AiFillStepBackward, AiFillStepForward } from "react-icons/ai";
 import LikeButton from "./LikeButton";
 import Slider from "./Slider";
 import QueueButton from "./QueueButton";
-import { HiOutlineArrowPathRoundedSquare } from "react-icons/hi2";
+import ColorThief from "color-thief-ts";
 
 const formatTime = (time: number | null) => {
   if (!time || isNaN(time)) {
@@ -43,6 +44,20 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
   const [time, setTime] = useState("-:--");
 
   const Icon = player.isPlaying ? BsPauseFill : BsPlayFill;
+
+  useEffect(() => {
+    if (!imageUrl) return;
+
+    const getColor = async () => {
+      const colorThief = new ColorThief();
+      const dominantColor = await colorThief.getColorAsync(imageUrl);
+      console.log(song.title);
+      console.log(song.author);
+      console.log(dominantColor);
+    }
+
+    getColor();
+  }, [imageUrl]);
 
   const trackDuration = useMemo(() => {
     return formatTime((duration as number) / 1000);
@@ -84,12 +99,10 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
             alt="Media Item"
             className="mr-1 rounded-[4px] object-cover"
           />
-          {/* <div className="flex min-w-full"> */}
-            <div className="flex-1 flex justify-center flex-col text-[13px] truncate">
-              <p className="font-bold">{song.title}</p>
-              <p>{song.author}</p>
-            </div>
-          {/* </div> */}
+          <div className="flex-1 flex justify-center flex-col text-[13px] truncate">
+            <p className="font-bold">{song.title}</p>
+            <p>{song.author}</p>
+          </div>
           <div className="flex items-center gap-2">
             <LikeButton songId={song.id} className="p-1" iconSize={30} />
             <button className="p-1" onClick={handlePlay}>
@@ -120,15 +133,14 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
               <RxDotsHorizontal size={24} />
             </button>
           </div>
-          <div className="flex-1 mb-6">
-            {/* <Image
-              width={100}
-              height={100}
+          <div className="relative flex-1 mb-6">
+            <Image
+              fill
               src={imageUrl || "/images/liked.png"}
               alt="Media Item"
-              className="h-full w-full mr-1 rounded-[4px] object-contain"
-            /> */}
-            <div className="h-full w-full bg-contain bg-center bg-no-repeat" style={{ backgroundImage: `url(${imageUrl})` }} />
+              className="mr-1 rounded-[4px] object-contain"
+            />
+            {/* <div className="h-full w-full bg-contain bg-center bg-no-repeat" style={{ backgroundImage: `url(${imageUrl})` }} /> */}
           </div>
           <div className="flex items-center gap-3 mx-3 mb-4">
             <div className="flex-1 truncate">

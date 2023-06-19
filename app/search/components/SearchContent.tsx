@@ -42,9 +42,9 @@ const SearchContent: React.FC<SearchContentProps> = ({
             <MediaItem
               onClick={(id: string) => onPlay(id)}
               data={song}
+              likeBtn
             />
           </div>
-          <LikeButton songId={song.id} />
         </div>
       ))}
     </div>

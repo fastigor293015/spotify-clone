@@ -50,9 +50,9 @@ const LikedContent = () => {
               onClick={(id: string) => onPlay(id)}
               data={song}
               number={i + 1}
+              likeBtn
             />
           </div>
-          <LikeButton songId={song.id} />
         </div>
       ))}
     </div>

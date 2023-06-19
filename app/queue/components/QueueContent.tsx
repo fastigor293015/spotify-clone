@@ -54,8 +54,8 @@ const QueueContent = () => {
             number={1}
             data={songs[firstInQueue]}
             onClick={() => {}}
+            likeBtn
           />
-          <LikeButton songId={songs[firstInQueue].id} />
         </div>
       </div>
 
@@ -69,8 +69,8 @@ const QueueContent = () => {
               number={i + 2}
               data={song}
               onClick={() => {}}
+              likeBtn
             />
-            <LikeButton songId={song.id} />
           </div>
         ))}
       </div>)}
