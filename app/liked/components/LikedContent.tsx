@@ -1,6 +1,5 @@
 "use client";
 
-import LikeButton from "@/components/LikeButton";
 import MediaItem from "@/components/MediaItem";
 import useGetSongsByIds from "@/hooks/useGetSongsByIds";
 import useLikedSongs from "@/hooks/useLikedSongs";
