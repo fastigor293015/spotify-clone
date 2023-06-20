@@ -70,8 +70,9 @@ const Header: React.FC<HeaderProps> = ({
         flex
         items-center
         justify-between
+        text-neutral-900
       `)}>
-        <div className="absolute inset-0 -z-[1] bg-emerald-800" style={{ opacity: bgOpacity, backgroundColor: bgcolor }} />
+        <div className="absolute inset-0 -z-[1] bg-current" style={{ opacity: bgOpacity, color: bgcolor }} />
         <div className="
           hidden
           md:flex
@@ -200,10 +201,10 @@ const Header: React.FC<HeaderProps> = ({
           h-80
           bg-gradient-to-b
           from-current
-          text-emerald-800
+          text-neutral-900
           pointer-events-none
         `)}
-        style={{ backgroundColor: bgcolor }}
+        style={{ color: bgcolor }}
       />
       <div className="relative z-[1] p-6 pt-0">
         {children}

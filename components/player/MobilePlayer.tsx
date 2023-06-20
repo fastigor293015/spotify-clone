@@ -15,8 +15,7 @@ import { AiFillStepBackward, AiFillStepForward } from "react-icons/ai";
 import LikeButton from "../buttons/LikeButton";
 import Slider from "../Slider";
 import QueueButton from "../buttons/QueueButton";
-import ColorThief from "color-thief-ts";
-import { getImageData } from "@/libs/utils";
+import useImageDominantColor from "@/hooks/useImageDominantColor";
 
 const formatTime = (time: number | null) => {
   if (!time || isNaN(time)) {
@@ -44,27 +43,10 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
   const [seconds, setSeconds] = useState(0);
   const [time, setTime] = useState("-:--");
   const [imageData, setImageData] = useState<Uint8ClampedArray  | number[]>([0, 0, 0]);
-  // const [color, setColor] = useState<any>("");
+  const imageColor = useImageDominantColor(imageUrl);
   const imageRef = useRef<HTMLImageElement | null>(null);
 
   const Icon = player.isPlaying ? BsPauseFill : BsPlayFill;
-
-  useEffect(() => {
-    if (!imageRef.current) return;
-    imageRef.current.addEventListener("load", () => {
-      const newImageData = getImageData(imageRef.current!);
-      setImageData(newImageData);
-    })
-
-    // imageRef.current?.addEventListener("load", () => {
-    //   const colorThief = new ColorThief();
-    //   const palette = colorThief.getColor(imageRef.current!);
-    //   setColor(palette);
-    //   console.log(song.title);
-    //   console.log(song.author);
-    //   console.log(palette);
-    // })
-  }, [imageRef.current]);
 
   const trackDuration = useMemo(() => {
     return formatTime((duration as number) / 1000);
@@ -105,7 +87,7 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
         src={imageUrl || "/images/liked.png"}
         alt="For picking color"
       />
-      <div className="fixed z-[20] right-2 bottom-2 left-2 block md:hidden rounded-md transition duration-300" style={{ backgroundColor: `rgb(${imageData[0]}, ${imageData[1]}, ${imageData[2]})` }}>
+      <div className="fixed z-[20] right-2 bottom-2 left-2 block md:hidden rounded-md transition duration-300" style={{ backgroundColor: imageColor }}>
         <div className="relative grid grid-cols-[auto,1fr,auto] items-center gap-2 h-14 w-full p-2 bg-black/[.48]" onClick={(e) => player.setIsMobilePlayerOpen(true)}>
           <Image
             // ref={imageRef}
@@ -136,7 +118,7 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
           className="fixed inset-0 flex flex-col p-3 bg-[linear-gradient(rgba(0,0,0,.2),rgba(0,0,0,.6)_80%)]"
           key={`${player.isMobilePlayerOpen}`}
           initial={{ y: "100%" }}
-          animate={{ y: 0, backgroundColor: `rgb(${imageData[0]}, ${imageData[1]}, ${imageData[2]})` }}
+          animate={{ y: 0, backgroundColor: imageColor }}
           exit={{  y: "100%" }}
           transition={{ type: "keyframes", duration: .2 }}
         >

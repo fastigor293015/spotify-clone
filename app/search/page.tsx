@@ -19,11 +19,12 @@ const Search = async ({ searchParams }: SearchProps) => {
     <Box
       className="
         h-full
+        pb-20
         overflow-hidden
         overflow-y-auto
       "
     >
-      <Header className="text-neutral-900">
+      <Header>
         <div className="mb-2 flex flex-col gap-y-6">
           <h1 className="text-white text-3xl font-semibold">
             Search

@@ -15,11 +15,12 @@ export default async function Home() {
     <Box
       className="
         h-full
+        pb-20
         overflow-hidden
         overflow-y-auto
       "
     >
-      <Header>
+      <Header bgcolor="rgb(6,95,70)">
         <div className="mb-2">
           <h1
             className="
