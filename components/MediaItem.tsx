@@ -46,6 +46,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
         cursor-pointer
         hover:bg-neutral-800/50
         w-full
+        max-w-full
         p-2
         rounded-md
       "
@@ -93,7 +94,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
         flex
         flex-col
         gap-y-1
-        overflow-hidden
+        truncate
       ">
         <p className={twMerge(`text-white truncate`, player.activeId === data.id && "text-green-500")}>
           {data.title}

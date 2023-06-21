@@ -62,6 +62,43 @@ export interface Database {
           }
         ]
       }
+      playlists: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: number
+          image_path: string | null
+          songs: number[] | null
+          title: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          image_path?: string | null
+          songs?: number[] | null
+          title?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          image_path?: string | null
+          songs?: number[] | null
+          title?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlists_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       prices: {
         Row: {
           active: boolean | null

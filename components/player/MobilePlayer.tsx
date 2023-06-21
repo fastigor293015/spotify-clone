@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import useInterval from "@/hooks/useInterval";
@@ -42,9 +42,7 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
   const imageUrl = useLoadImage(song);
   const [seconds, setSeconds] = useState(0);
   const [time, setTime] = useState("-:--");
-  const [imageData, setImageData] = useState<Uint8ClampedArray  | number[]>([0, 0, 0]);
   const imageColor = useImageDominantColor(imageUrl);
-  const imageRef = useRef<HTMLImageElement | null>(null);
 
   const Icon = player.isPlaying ? BsPauseFill : BsPlayFill;
 
@@ -79,18 +77,9 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
 
   return (
     <>
-      <Image
-        ref={imageRef}
-        className="absolute -left-20 bottom-[150px]"
-        height={1}
-        width={1}
-        src={imageUrl || "/images/liked.png"}
-        alt="For picking color"
-      />
       <div className="fixed z-[20] right-2 bottom-2 left-2 block md:hidden rounded-md transition duration-300" style={{ backgroundColor: imageColor }}>
         <div className="relative grid grid-cols-[auto,1fr,auto] items-center gap-2 h-14 w-full p-2 bg-black/[.48]" onClick={(e) => player.setIsMobilePlayerOpen(true)}>
           <Image
-            // ref={imageRef}
             width={40}
             height={40}
             src={imageUrl || "/images/liked.png"}

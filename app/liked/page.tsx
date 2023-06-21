@@ -16,8 +16,8 @@ const Liked = () => {
         overflow-y-auto
       "
     >
-      <Header bgcolor="rgb(6,95,70)">
-        <div className="mt-20">
+      <Header>
+        <div className="mt-14">
           <div
             className="
               flex
@@ -31,8 +31,9 @@ const Liked = () => {
               relative
               h-32
               w-32
-              lg:h-44
-              lg:w-44
+              lg:h-48
+              lg:w-48
+              shadow-4xl
             ">
               <Image
                 fill

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 import { RxCaretLeft, RxCaretRight } from "react-icons/rx";
@@ -12,7 +12,8 @@ import { useUser } from "@/hooks/useUser";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import Button from "./buttons/Button";
 import usePlayer from "@/hooks/usePlayer";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import useImageDominantColor from "@/hooks/useImageDominantColor";
 
 interface HeaderProps {
   children: React.ReactNode;
@@ -23,10 +24,14 @@ const Header: React.FC<HeaderProps> = ({
   children,
   bgcolor = ""
 }) => {
+  const pathname = usePathname();
   const player = usePlayer();
   const authModal = useAuthModal();
   const router = useRouter();
   const [bgOpacity, setBgOpacity] = useState(0);
+
+  const likedColor = useImageDominantColor("/images/liked.png");
+  const pathColor = useMemo(() => pathname === "/liked" ? likedColor : "", [pathname, likedColor]);
 
   useEffect(() => {
     const main = document.body.querySelector("main")?.querySelector("div");
@@ -72,7 +77,7 @@ const Header: React.FC<HeaderProps> = ({
         justify-between
         text-neutral-900
       `)}>
-        <div className="absolute inset-0 -z-[1] bg-current" style={{ opacity: bgOpacity, color: bgcolor }} />
+        <div className="absolute inset-0 -z-[1] bg-current" style={{ opacity: bgOpacity, color: pathColor || bgcolor }} />
         <div className="
           hidden
           md:flex
@@ -203,8 +208,8 @@ const Header: React.FC<HeaderProps> = ({
           from-current
           text-neutral-900
           pointer-events-none
-        `)}
-        style={{ color: bgcolor }}
+        `, (pathname === "/liked" || pathname.includes("/playlist/")) && "h-[400px]")}
+        style={{ color: pathColor || bgcolor }}
       />
       <div className="relative z-[1] p-6 pt-0">
         {children}

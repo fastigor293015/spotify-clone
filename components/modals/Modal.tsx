@@ -2,13 +2,15 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import { IoMdClose } from "react-icons/io";
+import { twMerge } from "tailwind-merge";
 
 interface ModalProps {
   isOpen: boolean;
   onChange: (open: boolean)  => void;
   title: string;
-  description: string;
+  description?: string;
   children: React.ReactNode;
+  className?: string;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -16,7 +18,8 @@ const Modal: React.FC<ModalProps> = ({
   onChange,
   title,
   description,
-  children
+  children,
+  className
 }) => {
   return (
     <Dialog.Root
@@ -35,7 +38,7 @@ const Modal: React.FC<ModalProps> = ({
           "
         />
         <Dialog.Content
-          className="
+          className={twMerge(`
             fixed
             z-50
             drop-shadow-md
@@ -57,19 +60,18 @@ const Modal: React.FC<ModalProps> = ({
             p-[25px]
             focus:outline-none
             overflow-y-auto
-          "
+          `, className)}
         >
           <Dialog.Title
-            className="
+            className={twMerge(`
               text-xl
-              text-center
               font-bold
               mb-4
-            "
+            `, description && "text-center")}
           >
             {title}
           </Dialog.Title>
-          <Dialog.Description
+          {description && (<Dialog.Description
             className="
               mb-5
               text-sm
@@ -78,7 +80,7 @@ const Modal: React.FC<ModalProps> = ({
             "
           >
             {description}
-          </Dialog.Description>
+          </Dialog.Description>)}
           <div>
             {children}
           </div>
@@ -91,8 +93,8 @@ const Modal: React.FC<ModalProps> = ({
                 top-[10px]
                 right-[10px]
                 inline-flex
-                h-[25px]
-                w-[25px]
+                h-[30px]
+                w-[30px]
                 appearance-none
                 items-center
                 justify-center

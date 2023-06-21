@@ -48,14 +48,12 @@ const QueueContent = () => {
         <h2 className="mb-1 text-neutral-400 font-bold text-md">
           Now playing
         </h2>
-        <div className="flex gap-x-4">
-          <MediaItem
-            number={1}
-            data={songs[firstInQueue]}
-            onClick={() => {}}
-            likeBtn
-          />
-        </div>
+        <MediaItem
+          number={1}
+          data={songs[firstInQueue]}
+          onClick={() => {}}
+          likeBtn
+        />
       </div>
 
       {nextSongs.length > 0 && (<div className="mb-4">
@@ -63,14 +61,13 @@ const QueueContent = () => {
           Next up
         </h2>
         {nextSongs.map((song, i) => (
-          <div key={song.id} className="flex gap-x-4">
-            <MediaItem
-              number={i + 2}
-              data={song}
-              onClick={() => {}}
-              likeBtn
-            />
-          </div>
+          <MediaItem
+            key={song.id}
+            number={i + 2}
+            data={song}
+            onClick={() => {}}
+            likeBtn
+          />
         ))}
       </div>)}
     </div>

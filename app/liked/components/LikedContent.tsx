@@ -38,21 +38,15 @@ const LikedContent = () => {
   }
 
   return (
-    <div className="flex flex-col w-full p-6">
+    <div className="flex flex-col p-6">
       {songs.map((song, i) => (
-        <div
+        <MediaItem
           key={song.id}
-          className="flex items-center gap-x-4 w-full"
-        >
-          <div className="flex-1">
-            <MediaItem
-              onClick={(id: string) => onPlay(id)}
-              data={song}
-              number={i + 1}
-              likeBtn
-            />
-          </div>
-        </div>
+          onClick={(id: string) => onPlay(id)}
+          data={song}
+          number={i + 1}
+          likeBtn
+        />
       ))}
     </div>
   );

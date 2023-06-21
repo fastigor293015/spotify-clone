@@ -5,5 +5,5 @@ export const getImageDominantColor = async (src: string) => {
   const color = await colorThief.getColorAsync(src);
   console.log(color);
 
-  return color;
+  return color as any;
 }
