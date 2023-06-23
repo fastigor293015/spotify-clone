@@ -7,22 +7,43 @@ import Image from "next/image";
 import { BsPauseFill, BsPlayFill } from "react-icons/bs";
 import { twMerge } from "tailwind-merge";
 import LikeButton from "./buttons/LikeButton";
+import Button from "./buttons/Button";
+import usePlaylistEditModal from "@/hooks/usePlaylistEditModal";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
+import { usePathname, useRouter } from "next/navigation";
+import DropdownMenu, { DropdownItem } from "./DropdownMenu";
+import { RxDotsHorizontal } from "react-icons/rx";
+import { useUser } from "@/hooks/useUser";
 
 interface MediaItemProps {
   data: Song;
   onClick?: (id: string) => void;
   number?: number;
   likeBtn?: boolean;
+  addBtn?: boolean;
 }
 
 const MediaItem: React.FC<MediaItemProps> = ({
   data,
   onClick,
   number,
-  likeBtn
+  likeBtn,
+  addBtn,
 }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { playlistData } = usePlaylistEditModal();
   const player = usePlayer();
   const imageUrl = useLoadImage(data);
+  const supabaseClient = useSupabaseClient();
+  const { user } = useUser();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const isPlaylistPath = useMemo(() => pathname.includes("/playlist/"), [pathname]);
+  const isInCurPlaylist = useMemo(() =>  playlistData?.songs.includes(data.id), [playlistData, data]);
+  const Icon = useMemo(() => player.isPlaying && player.activeId === data.id ? BsPauseFill : BsPlayFill, [player, data]);
 
   const handleClick = () => {
     if (onClick) {
@@ -32,7 +53,93 @@ const MediaItem: React.FC<MediaItemProps> = ({
     return player.setId(data.id);
   }
 
-  const Icon = player.isPlaying && player.activeId === data.id ? BsPauseFill : BsPlayFill;
+  const addToCurPlaylist = async (e?: React.MouseEvent) => {
+    if (!user) return;
+    e?.stopPropagation();
+
+    if (!playlistData?.songs) return null;
+
+    try {
+      setIsLoading(true);
+      const { error } = await supabaseClient
+        .from("playlists")
+        .update({
+          songs: [...playlistData.songs, data.id]
+        })
+        .eq("id", playlistData.id);
+
+      if (error) {
+        toast.error(error.message);
+      }
+
+      setIsLoading(false);
+      toast.success("Successfully added!");
+      router.refresh();
+
+    } catch (error) {
+      toast.error("Something went wrong!");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const removeFromCurPlaylist = async (e?: React.MouseEvent) => {
+    if (!user) return;
+    e?.stopPropagation();
+
+    if (!playlistData?.songs) return null;
+
+    try {
+      setIsLoading(true);
+      const { error } = await supabaseClient
+        .from("playlists")
+        .update({
+          songs: playlistData.songs.filter((song) => song !== data.id)
+        })
+        .eq("id", playlistData.id);
+
+      if (error) {
+        toast.error(error.message);
+      }
+
+      setIsLoading(false);
+      toast.success("Successfully removed!");
+      router.refresh();
+
+    } catch (error) {
+      toast.error("Something went wrong!");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const playBtnHandler = () => {
+    if (player.activeId !== data.id) {
+      return player.setId(data.id);
+    }
+    if (!player.pause || !player.play) return;
+    if (player.isPlaying) {
+      player.pause();
+    } else {
+      player.play();
+    }
+  }
+
+  const defaultDropdownItems: DropdownItem[] = isInCurPlaylist && isPlaylistPath && user?.id === playlistData?.user_id ? [
+    {
+      label: "Add to queue",
+      onClick: () => player.addToQueue(data.id),
+    },
+    {
+      label: "Remove from this playlist",
+      onClick: () => removeFromCurPlaylist(),
+    },
+  ] : [
+    {
+      label: "Add to queue",
+      onClick: () => player.addToQueue(data.id),
+    },
+  ];
 
   return (
     <div
@@ -55,20 +162,10 @@ const MediaItem: React.FC<MediaItemProps> = ({
         <div className="flex items-center justify-center w-4 h-4 ml-2 mr-1">
           <div className={twMerge(`text-neutral-400 group-hover:hidden group-focus:hidden`, player.activeId === data.id && "text-green-500")}>
             {player.isPlaying && player.activeId === data.id
-            ? <Image width={14} height={14} src="/images/equaliser-animated.gif" alt="Equalizer" />
-            : number}
+              ? <Image width={14} height={14} src="/images/equaliser-animated.gif" alt="Equalizer" />
+              : number}
           </div>
-          <div className="hidden group-hover:block group-focus:hidden" onClick={() => {
-            if (player.activeId !== data.id) {
-              return player.setId(data.id);
-            }
-            if (!player.pause || !player.play) return;
-            if (player.isPlaying) {
-              player.pause();
-            } else {
-              player.play();
-            }
-          }}>
+          <div className="hidden group-hover:block group-focus:hidden" onClick={playBtnHandler}>
             <Icon size={22} />
           </div>
         </div>
@@ -104,7 +201,16 @@ const MediaItem: React.FC<MediaItemProps> = ({
         </p>
       </div>
       {likeBtn && (
-        <LikeButton className="mr-2" songId={data.id} />
+        <LikeButton className="mr-2 opacity-0 group-hover:opacity-100 transition-colors" songId={data.id} />
+      )}
+      {isPlaylistPath && !isInCurPlaylist ? (
+        <Button onClick={addToCurPlaylist} className="w-auto py-1 px-4 border-white/80 text-sm text-white bg-transparent hover:scale-110 hover:border-white hover:opacity-100" disabled={isLoading}>
+          Add
+        </Button>
+      ) : (
+        <DropdownMenu items={defaultDropdownItems} className="mx-2 opacity-0 group-hover:opacity-100" align="end">
+          <RxDotsHorizontal size={20} />
+        </DropdownMenu>
       )}
     </div>
   );

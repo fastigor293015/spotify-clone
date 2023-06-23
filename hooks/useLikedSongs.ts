@@ -13,7 +13,7 @@ const useLikedSongs = create<LikedSongsStore>((set, get) => ({
   toggle: (id: string) => {
     if (get().songs.findIndex((songId) => songId === id) >= 0) {
       return set({
-        songs: get().songs.filter((songId, i) => songId !== id)
+        songs: get().songs.filter((songId) => songId !== id)
       })
     }
 

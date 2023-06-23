@@ -33,7 +33,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
       <RadixDropdownMenu.Portal>
         <RadixDropdownMenu.Content
           align={align}
-          className="fixed z-[51] p-1 rounded-[4px] bg-neutral-800 shadow-3xl translate-y-3"
+          className="relative z-[51] p-1 rounded-[4px] min-w-[160px] bg-neutral-800 shadow-3xl translate-y-3"
         >
           {items.map(({ label, icon: Icon, onClick, disabled }) => (
             <RadixDropdownMenu.Item

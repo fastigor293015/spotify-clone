@@ -1,6 +1,7 @@
 import getPlaylistById from "@/actions/getPlaylistById";
 import Box from "@/components/Box";
 import PlaylistContent from "./components/PlaylistContent";
+import getSongs from "@/actions/getSongs";
 
 interface IParams {
   playlistId?: string;
@@ -8,6 +9,7 @@ interface IParams {
 
 const Playlist = async ({ params }: { params: IParams }) => {
   const playlist = await getPlaylistById(params.playlistId);
+  const recommendedSongs = await getSongs();
 
   if (!playlist) return null;
   console.log(playlist);
@@ -21,7 +23,7 @@ const Playlist = async ({ params }: { params: IParams }) => {
         overflow-y-auto
       "
     >
-      <PlaylistContent playlist={playlist} />
+      <PlaylistContent playlist={playlist} recommendedSongs={recommendedSongs} />
     </Box>
   );
 }

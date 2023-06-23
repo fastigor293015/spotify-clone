@@ -40,13 +40,16 @@ const PlaylistEditModal = () => {
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     try {
       setIsLoading(true);
-      const { error } = await supabaseClient
+      const { data: supabaseData, error } = await supabaseClient
         .from("playlists")
         .update({
           title: data.title,
           description: data.description,
         })
-        .eq("id", playlistData?.id);
+        .eq("id", playlistData?.id)
+        .select();
+
+      console.log(supabaseData);
 
       if (error) {
         return toast.error(error.message);
@@ -120,7 +123,7 @@ const PlaylistEditModal = () => {
           <div className={twMerge(`absolute inset-0 flex flex-col items-center justify-center pt-5 text-white bg-neutral-800 opacity-0 group-hover:opacity-100`, image && "bg-black/70")}>
             <HiOutlinePencil size={50} />
             <p>Choose a photo</p>
-            <DropdownMenu className="absolute top-2 right-2 rounded-full p-2 bg-neutral-900" items={dropdownItems}>
+            <DropdownMenu className="absolute top-2 right-2 rounded-full p-[6px] bg-neutral-900" items={dropdownItems} align="start">
               <RxDotsHorizontal size={20} />
             </DropdownMenu>
           </div>

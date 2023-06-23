@@ -3,6 +3,7 @@ import Stripe from "stripe";
 export interface Song {
   id: string;
   user_id: string;
+  email: string;
   author: string;
   title: string;
   song_path: string;
@@ -12,6 +13,7 @@ export interface Song {
 export interface Playlist {
   id?: string;
   user_id: string;
+  email: string;
   title: string;
   description: string;
   image_path?: string | null;

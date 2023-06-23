@@ -3,24 +3,25 @@
 import qs from "query-string";
 
 import useDebounce from "@/hooks/useDebounce";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Input from "./Input";
 
 const SearchInput = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const [value, setValue] = useState<string>("");
   const debouncedValue = useDebounce<string>(value, 500);
 
   useEffect(() => {
-    if (!debouncedValue) return router.replace("/search");
+    if (!debouncedValue) return router.replace(pathname);
 
     const query = {
       title: debouncedValue,
     }
 
     const url = qs.stringifyUrl({
-      url: "/search",
+      url: pathname,
       query: query
     });
 

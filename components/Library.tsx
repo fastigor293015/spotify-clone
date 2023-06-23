@@ -14,6 +14,7 @@ import DropdownMenu, { DropdownItem } from "./DropdownMenu";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 interface LibraryProps {
   songs: Song[];
@@ -22,6 +23,7 @@ interface LibraryProps {
 const Library: React.FC<LibraryProps> = ({
   songs
 }) => {
+  const router = useRouter();
   const subscribeModal = useSubscribeModal();
   const authModal = useAuthModal();
   const uploadModal = useUploadModal();
@@ -54,21 +56,26 @@ const Library: React.FC<LibraryProps> = ({
 
     try {
       setIsPlaylistLoading(true);
-      const { error } = await supabaseClient
+      const { data, error } = await supabaseClient
         .from("playlists")
         .insert({
           title: "My Playlist",
           user_id: user.id,
+          email: user.email,
           songs: [],
         })
+        .select();
 
       if (error) {
         setIsPlaylistLoading(false);
         return toast.error(error.message);
       }
 
+      console.log(data);
+
       setIsPlaylistLoading(false);
       toast.success("Playlist created!");
+      router.push(`/playlist/${data[0].id}`);
     } catch (error) {
       toast.error("Something went wrong");
     } finally {

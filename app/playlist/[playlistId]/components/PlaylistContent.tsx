@@ -1,66 +1,76 @@
 "use client";
 
-import Header from "@/components/Header";
-import MediaItem from "@/components/MediaItem";
+import { useEffect } from "react";
+import { RiMusic2Line } from "react-icons/ri";
+import Image from "next/image";
 import useGetSongsByIds from "@/hooks/useGetSongsByIds";
 import useOnPlay from "@/hooks/useOnPlay";
 import usePlaylistEditModal from "@/hooks/usePlaylistEditModal";
-import { Playlist } from "@/types";
-import Image from "next/image";
-import { useEffect } from "react";
-import { RiMusic2Line } from "react-icons/ri";
+import { Playlist, Song } from "@/types";
+import Header from "@/components/Header";
+import MediaItem from "@/components/MediaItem";
+import useLoadImage from "@/hooks/useLoadImage";
+import { useUser } from "@/hooks/useUser";
+import { twMerge } from "tailwind-merge";
 
 interface PlaylistContentProps {
   playlist: Playlist;
+  recommendedSongs: Song[];
 }
 
 const PlaylistContent: React.FC<PlaylistContentProps> = ({
-  playlist
+  playlist,
+  recommendedSongs
 }) => {
   const { songs } = useGetSongsByIds(playlist.songs);
   const onPlay = useOnPlay(songs);
+  const onPlayRecommended = useOnPlay(recommendedSongs);
+  const playlistImage = useLoadImage(playlist.image_path ? playlist.image_path : songs?.[0]);
   const playlistEditModal = usePlaylistEditModal();
+  const { user } = useUser();
 
   useEffect(() => {
     playlistEditModal.setData(playlist);
+    console.log(playlistEditModal.playlistData);
   }, [playlist]);
 
   return (
     <>
-      <Header bgcolor="rgb(6,95,70)">
-        <div className="mt-14">
+      <Header bgcolor="rgb(83, 83, 83)">
+        <div className="mt-10">
           <div
             className="
               flex
               flex-col
               md:flex-row
               items-center
+              md:items-end
               gap-x-5
             "
           >
             <label
               onClick={playlistEditModal.onOpen}
               htmlFor="upload"
-              className="
+              className={twMerge(`
                 relative
                 flex
                 items-center
                 justify-center
                 h-32
                 w-32
-                lg:h-48
-                lg:w-48
+                lg:h-[232px]
+                lg:w-[232px]
                 shadow-4xl
                 text-neutral-400
                 bg-neutral-800
-              "
+              `, user?.id !== playlist.user_id && "pointer-events-none")}
             >
-              {playlist.image_path ? (
+              {playlistImage ? (
                 <Image
                   fill
                   alt="Playlist"
                   className="object-cover"
-                  src={playlist.image_path}
+                  src={playlistImage}
                 />
               ) : (
                 <RiMusic2Line size={50} />
@@ -75,7 +85,7 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
               mt-4
               md:mt-0
             ">
-              <p className="hidden md:block font-semibold text-sm">
+              <p className="hidden md:block font-bold text-sm">
                 Playlist
               </p>
               <h1
@@ -84,11 +94,22 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
                   text-4xl
                   sm:text-5xl
                   lg:text-7xl
+                  leading-[1.2]
+                  sm:leading-[1.2]
+                  lg:leading-[1.2]
                   font-bold
+                  truncate
                 "
               >
                 {playlist.title}
               </h1>
+              {playlist.description && (
+                <p>{playlist.description}</p>
+              )}
+              <p className="mt-2 text-sm font-bold">
+                {playlist.email}
+                {playlist.songs.length > 0 && <span className="font-normal"> • {playlist.songs.length} {playlist.songs.length === 1 ? "song" : "songs"}</span>}
+              </p>
             </div>
           </div>
         </div>
@@ -119,6 +140,22 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
           </div>
         )}
       </div>
+      {user?.id === playlist.user_id && (
+        <div className="mt-10 px-6">
+          <h2 className="mb-3 text-2xl font-bold">Recommended</h2>
+          <p className="mb-6 text-neutral-400 text-sm">Based on the title of this playlist</p>
+          {recommendedSongs.map((song) =>
+            !playlist.songs.includes(song.id) && (
+              <MediaItem
+                key={song.id}
+                onClick={(id: string) => onPlayRecommended(id)}
+                data={song}
+                addBtn
+              />
+            )
+          )}
+        </div>
+      )}
     </>
   );
 }

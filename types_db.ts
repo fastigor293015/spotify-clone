@@ -66,6 +66,7 @@ export interface Database {
         Row: {
           created_at: string | null
           description: string | null
+          email: string | null
           id: number
           image_path: string | null
           songs: number[] | null
@@ -75,6 +76,7 @@ export interface Database {
         Insert: {
           created_at?: string | null
           description?: string | null
+          email?: string | null
           id?: number
           image_path?: string | null
           songs?: number[] | null
@@ -84,6 +86,7 @@ export interface Database {
         Update: {
           created_at?: string | null
           description?: string | null
+          email?: string | null
           id?: number
           image_path?: string | null
           songs?: number[] | null
