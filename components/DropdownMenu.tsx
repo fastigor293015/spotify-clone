@@ -26,7 +26,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
 }) => {
   return (
     <RadixDropdownMenu.Root>
-      <RadixDropdownMenu.Trigger className={className}>
+      <RadixDropdownMenu.Trigger className={twMerge("outline-none", className)}>
         {children}
       </RadixDropdownMenu.Trigger>
 
@@ -49,6 +49,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
               leading-4
               truncate
               select-none
+              outline-none
               hover:bg-white/10
               transition
               [data-disabled]:opacity-50

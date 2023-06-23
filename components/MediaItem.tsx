@@ -146,8 +146,8 @@ const MediaItem: React.FC<MediaItemProps> = ({
       onClick={handleClick}
       className="
         group
-        flex-1
-        flex
+        grid
+        grid-cols-1 auto-cols-[auto] grid-flow-col
         items-center
         gap-x-3
         cursor-pointer
@@ -158,52 +158,54 @@ const MediaItem: React.FC<MediaItemProps> = ({
         rounded-md
       "
     >
-      {number && (
-        <div className="flex items-center justify-center w-4 h-4 ml-2 mr-1">
-          <div className={twMerge(`text-neutral-400 group-hover:hidden group-focus:hidden`, player.activeId === data.id && "text-green-500")}>
-            {player.isPlaying && player.activeId === data.id
-              ? <Image width={14} height={14} src="/images/equaliser-animated.gif" alt="Equalizer" />
-              : number}
+      <div className="flex items-center gap-x-3">
+        {number && (
+          <div className="flex items-center justify-center w-4 h-4 ml-2 mr-1">
+            <div className={twMerge(`text-neutral-400 group-hover:hidden group-focus:hidden`, player.activeId === data.id && "text-green-500")}>
+              {player.isPlaying && player.activeId === data.id
+                ? <Image width={14} height={14} src="/images/equaliser-animated.gif" alt="Equalizer" />
+                : number}
+            </div>
+            <div className="hidden group-hover:block group-focus:hidden" onClick={playBtnHandler}>
+              <Icon size={22} />
+            </div>
           </div>
-          <div className="hidden group-hover:block group-focus:hidden" onClick={playBtnHandler}>
-            <Icon size={22} />
-          </div>
+        )}
+        <div
+          className="
+            relative
+            rounded-md
+            h-[48px]
+            w-[48px]
+            overflow-hidden
+          "
+        >
+          <Image
+            fill
+            src={imageUrl || "/images/liked.png"}
+            alt="Media Item"
+            className="object-cover"
+          />
         </div>
-      )}
-      <div
-        className="
-          relative
-          rounded-md
-          min-h-[48px]
-          min-w-[48px]
-          overflow-hidden
-        "
-      >
-        <Image
-          fill
-          src={imageUrl || "/images/liked.png"}
-          alt="Media Item"
-          className="object-cover"
-        />
-      </div>
-      <div className="
-        flex-1
-        flex
-        flex-col
-        gap-y-1
-        truncate
-      ">
-        <p className={twMerge(`text-white truncate`, player.activeId === data.id && "text-green-500")}>
-          {data.title}
-        </p>
-        <p className="text-neutral-400 text-sm truncate">
-          {data.author}
-        </p>
+        <div className="
+          flex-1
+          flex
+          flex-col
+          gap-y-1
+          truncate
+        ">
+          <p className={twMerge(`text-white truncate`, player.activeId === data.id && "text-green-500")}>
+            {data.title}
+          </p>
+          <p className="text-neutral-400 text-sm truncate">
+            {data.author}
+          </p>
+        </div>
       </div>
       {likeBtn && (
-        <LikeButton className="mr-2 opacity-0 group-hover:opacity-100 transition-colors" songId={data.id} />
+        <LikeButton className="mr-2 hidden group-hover:block transition-colors" songId={data.id} />
       )}
-      {isPlaylistPath && !isInCurPlaylist ? (
+      {addBtn && isPlaylistPath && !isInCurPlaylist ? (
         <Button onClick={addToCurPlaylist} className="w-auto py-1 px-4 border-white/80 text-sm text-white bg-transparent hover:scale-110 hover:border-white hover:opacity-100" disabled={isLoading}>
           Add
         </Button>

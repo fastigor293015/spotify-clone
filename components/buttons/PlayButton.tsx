@@ -1,19 +1,33 @@
 "use client";
 
 import usePlayer from "@/hooks/usePlayer";
-import { useCallback } from "react";
+import { Song } from "@/types";
+import { useCallback, useMemo } from "react";
 import { FaPause, FaPlay } from "react-icons/fa";
+import { twMerge } from "tailwind-merge";
 
 interface PlayButtonProps {
-  isActive: boolean;
+  songs: Song[];
+  playlistId?: string;
+  className?: string;
+  iconSize?: number | string;
 }
 
 const PlayButton: React.FC<PlayButtonProps> = ({
-  isActive
+  songs,
+  playlistId,
+  className,
+  iconSize = 16
 }) => {
   const player = usePlayer();
 
-  const handlePlay = useCallback(() => {
+  const isActive = useMemo(() => player.playlistId === playlistId, [player, playlistId]);
+
+  const handleClick = useCallback(() => {
+    if (!isActive) {
+      player.setIds(songs.map((song) => song.id), playlistId);
+      player.setId(songs[0].id);
+    };
     if (!player.play || !player.pause || !isActive) return;
 
     if (!player.isPlaying) {
@@ -21,12 +35,12 @@ const PlayButton: React.FC<PlayButtonProps> = ({
     } else {
       player.pause();
     }
-  }, [player, isActive]);
+  }, [player, isActive, songs, playlistId]);
 
   return (
     <button
-      onClick={handlePlay}
-      className="
+      onClick={handleClick}
+      className={twMerge(`
         transition
         opacity-0
         rounded-full
@@ -34,17 +48,20 @@ const PlayButton: React.FC<PlayButtonProps> = ({
         items-center
         bg-green-500
         p-4
+        text-black
         drop-shadow-md
         translate-y-1/4
         group-hover:opacity-100
         group-hover:translate-y-0
         hover:scale-110
-      "
+        active:scale-100
+        active:opacity-70
+      `, className)}
     >
       {isActive && player.isPlaying ? (
-        <FaPause className="text-black" />
+        <FaPause size={iconSize} />
       ) : (
-        <FaPlay className="text-black" />
+        <FaPlay size={iconSize} />
       )}
     </button>
   );

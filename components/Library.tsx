@@ -6,7 +6,7 @@ import { CgPlayListAdd } from "react-icons/cg";
 import useAuthModal from "@/hooks/useAuthModal";
 import { useUser } from "@/hooks/useUser";
 import useUploadModal from "@/hooks/useUploadModal";
-import { Song } from "@/types";
+import { Playlist } from "@/types";
 import MediaItem from "./MediaItem";
 import useOnPlay from "@/hooks/useOnPlay";
 import useSubscribeModal from "@/hooks/useSubscribeModal";
@@ -15,13 +15,14 @@ import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import PlaylistItem from "./PlaylistItem";
 
 interface LibraryProps {
-  songs: Song[];
+  playlists: Playlist[];
 }
 
 const Library: React.FC<LibraryProps> = ({
-  songs
+  playlists
 }) => {
   const router = useRouter();
   const subscribeModal = useSubscribeModal();
@@ -30,8 +31,6 @@ const Library: React.FC<LibraryProps> = ({
   const { user, subscription } = useUser();
   const supabaseClient = useSupabaseClient();
   const [isPlaylistLoading, setIsPlaylistLoading] = useState(false);
-
-  const onPlay = useOnPlay(songs);
 
   const handleSongUpload = () => {
     if (!user) {
@@ -75,6 +74,7 @@ const Library: React.FC<LibraryProps> = ({
 
       setIsPlaylistLoading(false);
       toast.success("Playlist created!");
+      router.refresh();
       router.push(`/playlist/${data[0].id}`);
     } catch (error) {
       toast.error("Something went wrong");
@@ -145,12 +145,11 @@ const Library: React.FC<LibraryProps> = ({
           flex-col
           gap-y-2
           mt-4
-          px-3
+          px-2
         "
       >
-        {songs.map((item) => (
-          <MediaItem
-            onClick={(id: string) => onPlay(id)}
+        {playlists.map((item) => (
+          <PlaylistItem
             key={item.id}
             data={item}
           />

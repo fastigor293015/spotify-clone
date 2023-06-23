@@ -5,9 +5,9 @@ import ModalProvider from '@/providers/ModalProvider';
 import ToasterProvider from '@/providers/ToasterProvider';
 import LikedSongsProvider from '@/providers/LikedSongsProvider';
 
-import getSongsByUserId from '@/actions/getSongsByUserId';
 import getActiveProductsWithPrices from '@/actions/getActiveProductsWithPrices';
 import getLikedSongs from '@/actions/getLikedSongs';
+import getPlaylistsByUserId from '@/actions/getPlaylistsByUserId';
 
 import Sidebar from '@/components/Sidebar';
 import Player from '@/components/player/Player';
@@ -29,7 +29,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const likedSongs = await getLikedSongs();
-  const userSongs = await getSongsByUserId();
+  const userPlaylists = await getPlaylistsByUserId();
   const products = await getActiveProductsWithPrices();
 
   return (
@@ -40,7 +40,7 @@ export default async function RootLayout({
           <UserProvider>
             <LikedSongsProvider songs={likedSongs} />
             <ModalProvider products={products} />
-            <Sidebar songs={userSongs}>
+            <Sidebar playlists={userPlaylists}>
               {children}
             </Sidebar>
             <Player />

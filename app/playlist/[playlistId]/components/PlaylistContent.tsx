@@ -12,6 +12,8 @@ import MediaItem from "@/components/MediaItem";
 import useLoadImage from "@/hooks/useLoadImage";
 import { useUser } from "@/hooks/useUser";
 import { twMerge } from "tailwind-merge";
+import useImageDominantColor from "@/hooks/useImageDominantColor";
+import PlayButton from "@/components/buttons/PlayButton";
 
 interface PlaylistContentProps {
   playlist: Playlist;
@@ -22,21 +24,23 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
   playlist,
   recommendedSongs
 }) => {
+  const playlistEditModal = usePlaylistEditModal();
   const { songs } = useGetSongsByIds(playlist.songs);
   const onPlay = useOnPlay(songs);
   const onPlayRecommended = useOnPlay(recommendedSongs);
   const playlistImage = useLoadImage(playlist.image_path ? playlist.image_path : songs?.[0]);
-  const playlistEditModal = usePlaylistEditModal();
+  const headerColor = useImageDominantColor(playlistImage);
   const { user } = useUser();
 
   useEffect(() => {
-    playlistEditModal.setData(playlist);
+    if (!playlist) return;
+    playlistEditModal.setData({ ...playlist, image_path: playlist?.image_path || songs?.[0]?.image_path });
     console.log(playlistEditModal.playlistData);
   }, [playlist]);
 
   return (
     <>
-      <Header bgcolor="rgb(83, 83, 83)">
+      <Header bgcolor={playlistImage ? headerColor : "rgb(83, 83, 83)"}>
         <div className="mt-10">
           <div
             className="
@@ -45,6 +49,8 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
               md:flex-row
               items-center
               md:items-end
+              text-center
+              md:text-start
               gap-x-5
             "
           >
@@ -58,6 +64,8 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
                 justify-center
                 h-32
                 w-32
+                md:h-40
+                md:w-40
                 lg:h-[232px]
                 lg:w-[232px]
                 shadow-4xl
@@ -93,7 +101,7 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
                   text-white
                   text-4xl
                   sm:text-5xl
-                  lg:text-7xl
+                  lg:text-8xl
                   leading-[1.2]
                   sm:leading-[1.2]
                   lg:leading-[1.2]
@@ -114,6 +122,16 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
           </div>
         </div>
       </Header>
+      {playlist.songs.length > 0 && (
+        <div className="p-6">
+          <PlayButton
+            songs={songs}
+            playlistId={playlist.id}
+            className="p-[18px] opacity-100"
+            iconSize={20}
+          />
+        </div>
+      )}
       <div className="relative z-[1]">
         {songs.length === 0 ? (
           <div className="
@@ -143,7 +161,7 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
       {user?.id === playlist.user_id && (
         <div className="mt-10 px-6">
           <h2 className="mb-3 text-2xl font-bold">Recommended</h2>
-          <p className="mb-6 text-neutral-400 text-sm">Based on the title of this playlist</p>
+          <p className="mb-6 text-neutral-400 text-sm">{!playlist.songs || playlist.songs.length === 0 ? "Based on the title of this playlist" : "Based on what's in this playlist"}</p>
           {recommendedSongs.map((song) =>
             !playlist.songs.includes(song.id) && (
               <MediaItem
