@@ -75,7 +75,7 @@ const SongItem: React.FC<SongItemProps> = ({
         bottom-24
         right-5
       ">
-        <PlayButton isActive={data.id === player.activeId} />
+        <PlayButton songs={[data]} />
       </div>
     </div>
   );
