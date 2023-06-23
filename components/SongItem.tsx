@@ -8,18 +8,15 @@ import usePlayer from "@/hooks/usePlayer";
 
 interface SongItemProps {
   data: Song;
-  onClick: (id: string) => void;
 }
 
 const SongItem: React.FC<SongItemProps> = ({
   data,
-  onClick
 }) => {
   const player = usePlayer();
   const imagePath = useLoadImage(data);
   return (
     <div
-      onClick={() => onClick(data.id)}
       className="
         relative
         group
@@ -75,7 +72,15 @@ const SongItem: React.FC<SongItemProps> = ({
         bottom-24
         right-5
       ">
-        <PlayButton songs={[data]} />
+        <PlayButton
+          songs={[data]}
+          className="
+            translate-y-1/4
+            opacity-0
+            group-hover:opacity-100
+            group-hover:translate-y-0
+          "
+        />
       </div>
     </div>
   );

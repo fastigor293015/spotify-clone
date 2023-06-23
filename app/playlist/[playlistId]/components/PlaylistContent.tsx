@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { RiMusic2Line } from "react-icons/ri";
 import Image from "next/image";
 import useGetSongsByIds from "@/hooks/useGetSongsByIds";
-import useOnPlay from "@/hooks/useOnPlay";
 import usePlaylistEditModal from "@/hooks/usePlaylistEditModal";
 import { Playlist, Song } from "@/types";
 import Header from "@/components/Header";
@@ -14,6 +13,12 @@ import { useUser } from "@/hooks/useUser";
 import { twMerge } from "tailwind-merge";
 import useImageDominantColor from "@/hooks/useImageDominantColor";
 import PlayButton from "@/components/buttons/PlayButton";
+import DropdownMenu, { DropdownItem } from "@/components/DropdownMenu";
+import { RxDotsHorizontal } from "react-icons/rx";
+import usePlayer from "@/hooks/usePlayer";
+import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
 interface PlaylistContentProps {
   playlist: Playlist;
@@ -24,13 +29,14 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
   playlist,
   recommendedSongs
 }) => {
+  const router = useRouter();
+  const player = usePlayer();
   const playlistEditModal = usePlaylistEditModal();
   const { songs } = useGetSongsByIds(playlist.songs);
-  const onPlay = useOnPlay(songs);
-  const onPlayRecommended = useOnPlay(recommendedSongs);
   const playlistImage = useLoadImage(playlist.image_path ? playlist.image_path : songs?.[0]);
   const headerColor = useImageDominantColor(playlistImage);
   const { user } = useUser();
+  const supabaseClient = useSupabaseClient();
 
   useEffect(() => {
     if (!playlist) return;
@@ -38,9 +44,49 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
     console.log(playlistEditModal.playlistData);
   }, [playlist]);
 
+  const deletePlaylistHandler = async (e?: React.MouseEvent) => {
+    if (!user) return;
+    e?.stopPropagation();
+
+    try {
+      const { error } = await supabaseClient
+        .from("playlists")
+        .delete()
+        .eq("id", playlist.id);
+
+      if (error) {
+        toast.error(error.message);
+      }
+
+      toast.success("Playlist deleted!");
+      router.push("/");
+
+    } catch (error) {
+      toast.error("Something went wrong!");
+    }
+  }
+
+  const stickyContent = (
+    <div className="flex items-center gap-2">
+      <PlayButton playlistId={playlist.id} songs={songs} className="opacity-100" />
+      <p className="text-2xl text-white font-bold">{playlist.title}</p>
+    </div>
+  )
+
+  const dropdownItems: DropdownItem[] = [
+    {
+      label: "Add to queue",
+      onClick: () => player.addToQueue(playlist.songs),
+    },
+    {
+      label: "Delete",
+      onClick: () => deletePlaylistHandler(),
+    },
+  ];
+
   return (
     <>
-      <Header bgcolor={playlistImage ? headerColor : "rgb(83, 83, 83)"}>
+      <Header bgcolor={playlistImage ? headerColor : "rgb(83, 83, 83)"} stickyContent={stickyContent} scrollValue={360}>
         <div className="mt-10">
           <div
             className="
@@ -107,14 +153,15 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
                   lg:leading-[1.2]
                   font-bold
                   truncate
+                  -translate-y-1
                 "
               >
                 {playlist.title}
               </h1>
               {playlist.description && (
-                <p>{playlist.description}</p>
+                <p className="text-sm text-white/70">{playlist.description}</p>
               )}
-              <p className="mt-2 text-sm font-bold">
+              <p className="text-sm font-bold">
                 {playlist.email}
                 {playlist.songs.length > 0 && <span className="font-normal"> • {playlist.songs.length} {playlist.songs.length === 1 ? "song" : "songs"}</span>}
               </p>
@@ -122,16 +169,19 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
           </div>
         </div>
       </Header>
-      {playlist.songs.length > 0 && (
-        <div className="p-6">
+      <div className="flex items-center gap-8 p-6">
+        {playlist.songs.length > 0 && (
           <PlayButton
             songs={songs}
             playlistId={playlist.id}
-            className="p-[18px] opacity-100"
+            className="p-[18px]"
             iconSize={20}
           />
-        </div>
-      )}
+        )}
+        <DropdownMenu items={dropdownItems} className="text-neutral-400 hover:text-white" align="start">
+          <RxDotsHorizontal size={30} />
+        </DropdownMenu>
+      </div>
       <div className="relative z-[1]">
         {songs.length === 0 ? (
           <div className="
@@ -139,7 +189,7 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
             flex-col
             gap-y-2
             w-full
-            px-6
+            p-6
             text-neutral-400
           ">
             No songs in playlist.
@@ -149,7 +199,6 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
             {songs.map((song, i) => (
               <MediaItem
                 key={song.id}
-                onClick={(id: string) => onPlay(id)}
                 data={song}
                 number={i + 1}
                 likeBtn
@@ -166,7 +215,6 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
             !playlist.songs.includes(song.id) && (
               <MediaItem
                 key={song.id}
-                onClick={(id: string) => onPlayRecommended(id)}
                 data={song}
                 addBtn
               />

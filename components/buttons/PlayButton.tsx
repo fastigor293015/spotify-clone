@@ -24,6 +24,7 @@ const PlayButton: React.FC<PlayButtonProps> = ({
   const isActive = useMemo(() => player.playlistId === playlistId, [player, playlistId]);
 
   const handleClick = useCallback(() => {
+    if (songs.length === 0) return;
     if (!isActive) {
       player.setIds(songs.map((song) => song.id), playlistId);
       player.setId(songs[0].id);
@@ -41,18 +42,14 @@ const PlayButton: React.FC<PlayButtonProps> = ({
     <button
       onClick={handleClick}
       className={twMerge(`
-        transition
-        opacity-0
-        rounded-full
         flex
         items-center
-        bg-green-500
         p-4
+        rounded-full
         text-black
+        bg-green-500
+        transition
         drop-shadow-md
-        translate-y-1/4
-        group-hover:opacity-100
-        group-hover:translate-y-0
         hover:scale-110
         active:scale-100
         active:opacity-70

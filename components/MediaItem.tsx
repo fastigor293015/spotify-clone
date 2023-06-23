@@ -19,7 +19,6 @@ import { useUser } from "@/hooks/useUser";
 
 interface MediaItemProps {
   data: Song;
-  onClick?: (id: string) => void;
   number?: number;
   likeBtn?: boolean;
   addBtn?: boolean;
@@ -27,7 +26,6 @@ interface MediaItemProps {
 
 const MediaItem: React.FC<MediaItemProps> = ({
   data,
-  onClick,
   number,
   likeBtn,
   addBtn,
@@ -44,14 +42,6 @@ const MediaItem: React.FC<MediaItemProps> = ({
   const isPlaylistPath = useMemo(() => pathname.includes("/playlist/"), [pathname]);
   const isInCurPlaylist = useMemo(() =>  playlistData?.songs.includes(data.id), [playlistData, data]);
   const Icon = useMemo(() => player.isPlaying && player.activeId === data.id ? BsPauseFill : BsPlayFill, [player, data]);
-
-  const handleClick = () => {
-    if (onClick) {
-      return onClick(data.id);
-    }
-
-    return player.setId(data.id);
-  }
 
   const addToCurPlaylist = async (e?: React.MouseEvent) => {
     if (!user) return;
@@ -73,7 +63,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
       }
 
       setIsLoading(false);
-      toast.success("Successfully added!");
+      toast.success("Add to playlist");
       router.refresh();
 
     } catch (error) {
@@ -103,7 +93,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
       }
 
       setIsLoading(false);
-      toast.success("Successfully removed!");
+      toast.success("Deleted from playlist");
       router.refresh();
 
     } catch (error) {
@@ -128,7 +118,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
   const defaultDropdownItems: DropdownItem[] = isInCurPlaylist && isPlaylistPath && user?.id === playlistData?.user_id ? [
     {
       label: "Add to queue",
-      onClick: () => player.addToQueue(data.id),
+      onClick: () => player.addToQueue([data.id]),
     },
     {
       label: "Remove from this playlist",
@@ -137,13 +127,12 @@ const MediaItem: React.FC<MediaItemProps> = ({
   ] : [
     {
       label: "Add to queue",
-      onClick: () => player.addToQueue(data.id),
+      onClick: () => player.addToQueue([data.id]),
     },
   ];
 
   return (
     <div
-      onClick={handleClick}
       className="
         group
         grid
@@ -186,6 +175,24 @@ const MediaItem: React.FC<MediaItemProps> = ({
             alt="Media Item"
             className="object-cover"
           />
+          {!number && (
+            <button
+              className={twMerge(`
+                absolute
+                inset-0
+                z-1
+                flex
+                items-center
+                justify-center
+                bg-black/50
+                opacity-0
+                group-hover:opacity-100
+              `, player.isPlaying && player.activeId === data.id && "opacity-100")}
+              onClick={playBtnHandler}
+            >
+              <Icon size={24} />
+            </button>
+          )}
         </div>
         <div className="
           flex-1

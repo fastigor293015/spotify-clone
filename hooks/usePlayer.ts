@@ -15,7 +15,7 @@ interface PlayerStore {
   onPlayPrev: () => void;
   setId: (id: string) => void;
   setIds: (ids: string[], playlistId?: string) => void;
-  addToQueue: (id: string) => void;
+  addToQueue: (ids: string[]) => void;
   setVolume: (value: number) => void;
   reset: () => void;
   setIsMobilePlayerOpen: (value: boolean) => void;
@@ -62,9 +62,16 @@ const usePlayer = create<PlayerStore>()(
       },
       setId: (id: string) => set({ activeId: id }),
       setIds: (ids: string[], playlistId?: string) => set({ ids, playlistId }),
-      addToQueue: (id: string) => set({ ids: [...get().ids, id] }),
+      addToQueue: (ids: string[]) => set({ ids: [...get().ids, ...ids] }),
       setVolume: (value: number) => set({ volume: value }),
-      reset: () => set({ ids: [], activeId: undefined }),
+      reset: () => set({
+        isPlaying: false,
+        ids: [],
+        activeId: undefined,
+        isMobilePlayerOpen: false,
+        play: undefined,
+        pause: undefined,
+      }),
       setIsMobilePlayerOpen: (value: boolean) => set({ isMobilePlayerOpen: value })
     }),
     {

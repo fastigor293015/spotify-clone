@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
@@ -9,37 +10,39 @@ import { BiSearch } from "react-icons/bi";
 import { FaUserAlt } from "react-icons/fa";
 import useAuthModal from "@/hooks/useAuthModal";
 import { useUser } from "@/hooks/useUser";
+import usePlayer from "@/hooks/usePlayer";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import Button from "./buttons/Button";
-import usePlayer from "@/hooks/usePlayer";
-import { useEffect, useMemo, useState } from "react";
-import useImageDominantColor from "@/hooks/useImageDominantColor";
 
 interface HeaderProps {
   children: React.ReactNode;
   bgcolor?: string;
+  stickyContent?: React.ReactNode;
+  scrollValue?: number;
 }
 
 const Header: React.FC<HeaderProps> = ({
   children,
-  bgcolor = ""
+  bgcolor = "",
+  stickyContent,
+  scrollValue = 150,
 }) => {
   const pathname = usePathname();
   const player = usePlayer();
   const authModal = useAuthModal();
   const router = useRouter();
   const [bgOpacity, setBgOpacity] = useState(0);
-
-  const likedColor = useImageDominantColor("/images/liked.png");
-  const pathColor = useMemo(() => pathname === "/liked" ? likedColor : "", [pathname, likedColor]);
+  const [stickyContentOpacity, setStickyContentOpacity] = useState(0);
 
   useEffect(() => {
     const main = document.body.querySelector("main")?.querySelector("div");
 
     const handleScroll = () => {
       if (!main) return;
-      const newOpacity = main.scrollTop > 150 ? 150 : main?.scrollTop
-      setBgOpacity(newOpacity / 150);
+      const newOpacity = (main.scrollTop > 250 ? 250 : main?.scrollTop) / 250;
+      setBgOpacity(newOpacity);
+      const newStickyContentOpacity = main.scrollTop > scrollValue ? 1 : 0;
+      setStickyContentOpacity(newStickyContentOpacity);
     }
 
     // console.log(scrollY)
@@ -68,16 +71,18 @@ const Header: React.FC<HeaderProps> = ({
         sticky
         top-0
         z-10
-        w-full
-        mb-2
-        py-4
-        px-6
         flex
         items-center
         justify-between
+        w-full
+        h-[68px]
+        mb-2
+        py-4
+        px-6
+        gap-2
         text-neutral-900
       `)}>
-        <div className="absolute inset-0 -z-[1] bg-current" style={{ opacity: bgOpacity, color: pathColor || bgcolor }} />
+        <div className="absolute inset-0 -z-[1] bg-current" style={{ opacity: bgOpacity, color: bgcolor }} />
         <div className="
           hidden
           md:flex
@@ -113,6 +118,13 @@ const Header: React.FC<HeaderProps> = ({
             <RxCaretRight className="text-white" size={35} />
           </button>
         </div>
+
+        {stickyContent && (
+          <div className="hidden md:flex flex-1 transition" style={{ opacity: stickyContentOpacity }}>
+            {stickyContent}
+          </div>
+        )}
+
         <div className="flex md:hidden gap-x-2 items-center">
           <button
             onClick={() => router.push("/")}
@@ -209,7 +221,7 @@ const Header: React.FC<HeaderProps> = ({
           text-neutral-900
           pointer-events-none
         `, (pathname === "/liked" || pathname.includes("/playlist/")) && "h-[400px]")}
-        style={{ color: pathColor || bgcolor }}
+        style={{ color:  bgcolor }}
       />
       <div className="relative z-[1] p-6 pt-0">
         {children}

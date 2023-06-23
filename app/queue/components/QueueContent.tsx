@@ -51,7 +51,6 @@ const QueueContent = () => {
         <MediaItem
           number={1}
           data={songs[firstInQueue]}
-          onClick={() => {}}
           likeBtn
         />
       </div>
@@ -65,7 +64,6 @@ const QueueContent = () => {
             key={song.id}
             number={i + 2}
             data={song}
-            onClick={() => {}}
             likeBtn
           />
         ))}
