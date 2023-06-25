@@ -1,12 +1,15 @@
 "use client";
 
-import useGetSongsByIds from "@/hooks/useGetSongsByIds";
-import useLoadImage from "@/hooks/useLoadImage";
-import { Playlist } from "@/types";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import useGetSongsByIds from "@/hooks/useGetSongsByIds";
+import useLoadImage from "@/hooks/useLoadImage";
+import usePlayer from "@/hooks/usePlayer";
+import { LuVolume2 } from "react-icons/lu";
 import { RiMusic2Line } from "react-icons/ri";
 import { twMerge } from "tailwind-merge";
+import { Playlist } from "@/types";
+import { useMemo } from "react";
 
 interface PlaylistItemProps {
   data: Playlist;
@@ -17,14 +20,23 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
 }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const { playlistId, isPlaying } = usePlayer();
   const { songs } = useGetSongsByIds(data.songs);
   const playlistImage = useLoadImage(data.image_path ? data.image_path : songs?.[0]);
-  const playlistUrl = `/playlist/${data.id}`;
+  const isLikedPlaylist = useMemo(() => data.title === "Liked Songs", [data]);
+  const playlistUrl = useMemo(() => isLikedPlaylist ? "/liked" : `/playlist/${data.id}`, [data, isLikedPlaylist]);
 
   return (
     <div onClick={() => router.push(playlistUrl)} className={twMerge(`grid grid-cols-[auto_1fr] items-center gap-x-3 p-2 rounded-md hover:bg-neutral-800/50 cursor-pointer`, playlistUrl === pathname && "bg-white/[0.06]")}>
       <div className="relative flex items-center justify-center h-12 w-12 rounded-md text-neutral-400 bg-neutral-800 shadow-4xl overflow-hidden">
-        {playlistImage ? (
+        {isLikedPlaylist ? (
+          <Image
+            fill
+            src={"/images/liked.png"}
+            alt="Playlist image"
+            className="object-cover"
+          />
+        ) : playlistImage ? (
           <Image
             fill
             src={playlistImage}
@@ -35,16 +47,23 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
           <RiMusic2Line size={25} />
         )}
       </div>
-      <div>
-        <div className="flex flex-col gap-1">
-          <h1 className="font-medium">{data.title}</h1>
-          <p className="text-sm text-neutral-400">
+      <div className="grid grid-flow-col grid-cols-1 auto-cols-auto items-center gap-3">
+        <div className="flex-1 flex flex-col gap-1">
+          <h1 className={twMerge("font-medium truncate", playlistId === data.id && "text-green-500")}>{data.title}</h1>
+          <p className="text-sm text-neutral-400 truncate">
             Playlist
-            {data.songs && data.songs.length > 0 && (
+            {isLikedPlaylist ? (
               <span> • {data.songs.length} {data.songs.length === 1 ? "song" : "songs"}</span>
+            ) : (
+              <span> • {data.email}</span>
             )}
           </p>
         </div>
+        {playlistId === data.id && isPlaying && (
+          <div className="text-green-500">
+            <LuVolume2 size={24} />
+          </div>
+        )}
       </div>
     </div>
   );

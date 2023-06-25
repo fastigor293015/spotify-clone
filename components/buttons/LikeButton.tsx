@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 import { toast } from "react-hot-toast";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
@@ -10,15 +9,18 @@ import useAuthModal from "@/hooks/useAuthModal";
 import { useUser } from "@/hooks/useUser";
 import useLikedSongs from "@/hooks/useLikedSongs";
 import { twMerge } from "tailwind-merge";
+import { useRouter } from "next/navigation";
 
 interface LikeButtonProps {
-  songId: string;
+  id: string;
+  contentType?: "song" | "playlist";
   className?: string;
   iconSize?: number;
 };
 
 const LikeButton: React.FC<LikeButtonProps> = ({
-  songId,
+  id,
+  contentType = "song",
   className,
   iconSize = 25,
 }) => {
@@ -29,10 +31,12 @@ const LikeButton: React.FC<LikeButtonProps> = ({
   const authModal = useAuthModal();
   const { user } = useUser();
 
-  // const [isLiked, setIsLiked] = useState(likedSongs);
+  const [isPlaylistLiked, setIsPlaylistLiked] = useState(false);
   const isLiked = useMemo(() => {
-    return Boolean(likedSongs.songs.find((song) => songId === song));
-  }, [likedSongs, songId]);
+    return contentType === "song"
+      ? Boolean(likedSongs.songs.find((song) => id === song))
+      : isPlaylistLiked
+  }, [contentType, id, likedSongs, isPlaylistLiked]);
 
   useEffect(() => {
     if (!user?.id) {
@@ -41,19 +45,24 @@ const LikeButton: React.FC<LikeButtonProps> = ({
 
     const fetchData = async () => {
       const { data, error } = await supabaseClient
-        .from("liked_songs")
+        .from(`liked_${contentType}s`)
         .select("*")
         .eq("user_id", user.id)
-        .eq("song_id", songId)
+        .eq(`${contentType}_id`, id)
         .single();
 
       if (!error && data && !isLiked) {
-        likedSongs.toggle(songId);
+        if (contentType === "song") {
+          likedSongs.toggle(id);
+        } else {
+          setIsPlaylistLiked(true);
+          router.refresh();
+        }
       }
     };
 
     fetchData();
-  }, [songId, supabaseClient, user?.id]);
+  }, [id, supabaseClient, user?.id]);
 
   const Icon = isLiked ? AiFillHeart : AiOutlineHeart;
 
@@ -65,30 +74,45 @@ const LikeButton: React.FC<LikeButtonProps> = ({
 
     if (isLiked) {
       const { error } = await supabaseClient
-        .from("liked_songs")
+        .from(`liked_${contentType}s`)
         .delete()
         .eq("user_id", user.id)
-        .eq("song_id", songId);
+        .eq(`${contentType}_id`, id);
 
       if (error) {
-        toast.error(error.message);
-      } else {
-        likedSongs.toggle(songId);
+        return toast.error(error.message);
       }
+
+      if (contentType === "song") {
+        likedSongs.toggle(id);
+      } else {
+        setIsPlaylistLiked(false);
+        router.refresh();
+      }
+
     } else {
       const { error } = await supabaseClient
-        .from("liked_songs")
-        .insert({
-          song_id: songId,
-          user_id: user.id,
-        });
+        .from(`liked_${contentType}s`)
+        .insert(contentType === "song"
+          ? {
+            song_id: id,
+            user_id: user.id,
+          } : {
+            playlist_id: id,
+            user_id: user.id,
+          });
 
       if (error) {
-        toast.error(error.message);
-      } else {
-        likedSongs.toggle(songId);
-        toast.success("Liked");
+        return toast.error(error.message);
       }
+
+      if (contentType === "song") {
+        likedSongs.toggle(id);
+      } else {
+        setIsPlaylistLiked(true);
+        router.refresh();
+      }
+      toast.success("Liked");
     }
   }
 

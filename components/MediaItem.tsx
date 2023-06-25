@@ -19,6 +19,7 @@ import { useUser } from "@/hooks/useUser";
 
 interface MediaItemProps {
   data: Song;
+  onClick: (id: string) => void;
   number?: number;
   likeBtn?: boolean;
   addBtn?: boolean;
@@ -26,6 +27,7 @@ interface MediaItemProps {
 
 const MediaItem: React.FC<MediaItemProps> = ({
   data,
+  onClick,
   number,
   likeBtn,
   addBtn,
@@ -63,7 +65,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
       }
 
       setIsLoading(false);
-      toast.success("Add to playlist");
+      toast.success("Added to playlist");
       router.refresh();
 
     } catch (error) {
@@ -93,7 +95,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
       }
 
       setIsLoading(false);
-      toast.success("Deleted from playlist");
+      toast.success("Removed from playlist");
       router.refresh();
 
     } catch (error) {
@@ -104,15 +106,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
   }
 
   const playBtnHandler = () => {
-    if (player.activeId !== data.id) {
-      return player.setId(data.id);
-    }
-    if (!player.pause || !player.play) return;
-    if (player.isPlaying) {
-      player.pause();
-    } else {
-      player.play();
-    }
+    onClick(data.id);
   }
 
   const defaultDropdownItems: DropdownItem[] = isInCurPlaylist && isPlaylistPath && user?.id === playlistData?.user_id ? [
@@ -210,10 +204,10 @@ const MediaItem: React.FC<MediaItemProps> = ({
         </div>
       </div>
       {likeBtn && (
-        <LikeButton className="mr-2 hidden group-hover:block transition-colors" songId={data.id} />
+        <LikeButton className="mr-2 hidden group-hover:block transition-colors" id={data.id} />
       )}
       {addBtn && isPlaylistPath && !isInCurPlaylist ? (
-        <Button onClick={addToCurPlaylist} className="w-auto py-1 px-4 border-white/80 text-sm text-white bg-transparent hover:scale-110 hover:border-white hover:opacity-100" disabled={isLoading}>
+        <Button onClick={addToCurPlaylist} className="w-auto mr-1 py-1 px-4 border-white/80 text-sm text-white bg-transparent hover:scale-110 hover:border-white hover:opacity-100" disabled={isLoading}>
           Add
         </Button>
       ) : (

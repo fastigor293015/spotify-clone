@@ -16,13 +16,16 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
       className={twMerge(`
         flex
         w-full
+        py-3
+        px-3
         rounded-md
-        bg-neutral-700
         border
         border-transparent
-        px-3
-        py-3
         text-sm
+        bg-neutral-700
+        transition
+        focus:bg-[#333]
+        focus:border-neutral-700
         file:border-0
         file:bg-transparent
         file:text-sm

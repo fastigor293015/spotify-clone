@@ -19,6 +19,8 @@ import usePlayer from "@/hooks/usePlayer";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import LikeButton from "@/components/buttons/LikeButton";
+import usePlayActions from "@/hooks/usePlayActions";
 
 interface PlaylistContentProps {
   playlist: Playlist;
@@ -32,6 +34,8 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
   const router = useRouter();
   const player = usePlayer();
   const playlistEditModal = usePlaylistEditModal();
+  const { songHandlePlay } = usePlayActions(playlist.songs, playlist.id, playlist.title);
+  const { songHandlePlay: recommendedSongHandlePlay } = usePlayActions(recommendedSongs.map((song) => song.id));
   const { songs } = useGetSongsByIds(playlist.songs);
   const playlistImage = useLoadImage(playlist.image_path ? playlist.image_path : songs?.[0]);
   const headerColor = useImageDominantColor(playlistImage);
@@ -68,12 +72,17 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
 
   const stickyContent = (
     <div className="flex items-center gap-2">
-      <PlayButton playlistId={playlist.id} songs={songs} className="opacity-100" />
+      <PlayButton
+        playlistId={playlist.id}
+        playlistName={playlist.title}
+        songs={songs}
+        className="opacity-100"
+      />
       <p className="text-2xl text-white font-bold">{playlist.title}</p>
     </div>
   )
 
-  const dropdownItems: DropdownItem[] = [
+  const dropdownItems: DropdownItem[] = user?.id === playlist.user_id ? [
     {
       label: "Add to queue",
       onClick: () => player.addToQueue(playlist.songs),
@@ -81,6 +90,11 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
     {
       label: "Delete",
       onClick: () => deletePlaylistHandler(),
+    },
+  ] : [
+    {
+      label: "Add to queue",
+      onClick: () => player.addToQueue(playlist.songs),
     },
   ];
 
@@ -174,8 +188,16 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
           <PlayButton
             songs={songs}
             playlistId={playlist.id}
+            playlistName={playlist.title}
             className="p-[18px]"
             iconSize={20}
+          />
+        )}
+        {user?.id !== playlist.user_id && (
+          <LikeButton
+            id={playlist.id}
+            contentType="playlist"
+            iconSize={35}
           />
         )}
         <DropdownMenu items={dropdownItems} className="text-neutral-400 hover:text-white" align="start">
@@ -200,6 +222,7 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
               <MediaItem
                 key={song.id}
                 data={song}
+                onClick={(id: string) => songHandlePlay(id)}
                 number={i + 1}
                 likeBtn
               />
@@ -216,6 +239,7 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
               <MediaItem
                 key={song.id}
                 data={song}
+                onClick={(id: string) => recommendedSongHandlePlay(id)}
                 addBtn
               />
             )

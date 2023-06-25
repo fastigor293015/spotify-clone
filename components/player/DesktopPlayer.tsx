@@ -1,28 +1,18 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import Image from "next/image";
 import usePlayer from "@/hooks/usePlayer";
 import useInterval from "@/hooks/useInterval";
-import { Song } from "@/types";
+import useLoadImage from "@/hooks/useLoadImage";
 import { AiFillStepBackward, AiFillStepForward } from "react-icons/ai";
 import { BsPauseFill, BsPlayFill } from "react-icons/bs";
-import { HiSpeakerWave, HiSpeakerXMark } from "react-icons/hi2";
-import MediaItem from "../MediaItem";
+import { LuVolumeX, LuVolume1, LuVolume2 } from "react-icons/lu";
 import LikeButton from "../buttons/LikeButton";
 import Slider from "../Slider";
 import QueueButton from "../buttons/QueueButton";
-import Image from "next/image";
-import useLoadImage from "@/hooks/useLoadImage";
-
-const formatTime = (time: number | null) => {
-  if (!time || isNaN(time)) {
-    return "-:--";
-  }
-  const mins = Math.floor(time / 60);
-  const secs = Math.floor(time - Math.floor(time / 60) * 60);
-
-  return mins + ":" + (secs < 10 ? `0${secs}` : secs);
-}
+import { formatTime } from "@/utils";
+import { Song } from "@/types";
 
 interface DesktopPlayerProps {
   song: Song;
@@ -42,7 +32,7 @@ const DesktopPlayer: React.FC<DesktopPlayerProps> = ({
   const [showRemainingTime, setShowRemainingTime] = useState(false);
 
   const Icon = player.isPlaying ? BsPauseFill : BsPlayFill;
-  const VolumeIcon = player.volume === 0 ? HiSpeakerXMark : HiSpeakerWave;
+  const VolumeIcon = player.volume === 0 ? LuVolumeX : player.volume < .5 ? LuVolume1 : LuVolume2;
 
   const trackDuration = useMemo(() => {
     if (showRemainingTime) {
@@ -70,15 +60,16 @@ const DesktopPlayer: React.FC<DesktopPlayerProps> = ({
   }
 
   const onRewind = (value: number) => {
+    console.log(sound?.seek([]))
     sound?.seek([value]);
     setSeconds(sound?.seek([]));
-    setTime(formatTime(sound.seek([])));
+    setTime(sound?.seek([]) === 0 ? "0:00" : formatTime(sound.seek([])));
   }
 
   useInterval(() => {
     if (sound) {
       setSeconds(sound.seek([]));
-      setTime(formatTime(sound.seek([])));
+      setTime(sound?.seek([]) === 0 ? "0:00" : formatTime(sound.seek([])));
     }
   }, 1000);
 
@@ -123,7 +114,7 @@ const DesktopPlayer: React.FC<DesktopPlayerProps> = ({
             <p className="text-text-sm truncate">{song.title}</p>
             <p className="text-[11px] text-neutral-400 truncate">{song.author}</p>
           </div>
-          <LikeButton songId={song.id} />
+          <LikeButton id={song.id} />
         </div>
       </div>
 
@@ -207,7 +198,7 @@ const DesktopPlayer: React.FC<DesktopPlayerProps> = ({
           <VolumeIcon
             onClick={toggleMute}
             className="cursor-pointer"
-            size={24}
+            size={26}
           />
           <Slider
             ariaLabel="Volume"

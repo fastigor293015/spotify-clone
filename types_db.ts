@@ -31,6 +31,37 @@ export interface Database {
           }
         ]
       }
+      liked_playlists: {
+        Row: {
+          created_at: string | null
+          playlist_id: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          playlist_id?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          playlist_id?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "liked_playlists_playlist_id_fkey"
+            columns: ["playlist_id"]
+            referencedRelation: "playlists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "liked_playlists_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       liked_songs: {
         Row: {
           created_at: string | null

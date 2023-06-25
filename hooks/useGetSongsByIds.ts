@@ -27,7 +27,8 @@ const useGetSongsByIds = (ids?: string[]) => {
         return toast.error(error.message);
       }
 
-      setSongs(data as Song[]);
+      const newSongsData = ids.map((songId) => data.find((item) => item.id === songId));
+      setSongs(newSongsData as Song[]);
       setIsLoading(false);
     }
 

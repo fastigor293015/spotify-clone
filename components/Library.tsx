@@ -7,8 +7,6 @@ import useAuthModal from "@/hooks/useAuthModal";
 import { useUser } from "@/hooks/useUser";
 import useUploadModal from "@/hooks/useUploadModal";
 import { Playlist } from "@/types";
-import MediaItem from "./MediaItem";
-import useOnPlay from "@/hooks/useOnPlay";
 import useSubscribeModal from "@/hooks/useSubscribeModal";
 import DropdownMenu, { DropdownItem } from "./DropdownMenu";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
@@ -16,6 +14,7 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import PlaylistItem from "./PlaylistItem";
+import useLikedSongs from "@/hooks/useLikedSongs";
 
 interface LibraryProps {
   playlists: Playlist[];
@@ -28,6 +27,7 @@ const Library: React.FC<LibraryProps> = ({
   const subscribeModal = useSubscribeModal();
   const authModal = useAuthModal();
   const uploadModal = useUploadModal();
+  const { songs: likedSongs } = useLikedSongs();
   const { user, subscription } = useUser();
   const supabaseClient = useSupabaseClient();
   const [isPlaylistLoading, setIsPlaylistLoading] = useState(false);
@@ -83,6 +83,14 @@ const Library: React.FC<LibraryProps> = ({
     }
   }
 
+  const likedPlaylist: Playlist = {
+    id: "liked",
+    user_id: user?.id!,
+    email: user?.email!,
+    title: "Liked Songs",
+    songs: [...likedSongs],
+  }
+
   const dropdownItems: DropdownItem[] = [
     {
       label: "Upload a song",
@@ -95,7 +103,7 @@ const Library: React.FC<LibraryProps> = ({
       onClick: handlePlaylistCreation,
       disabled: isPlaylistLoading,
     },
-  ]
+  ];
 
   return (
     <div className="flex flex-col">
@@ -147,7 +155,7 @@ const Library: React.FC<LibraryProps> = ({
           px-2
         "
       >
-        {playlists.map((item) => (
+        {[likedPlaylist, ...playlists].map((item) => (
           <PlaylistItem
             key={item.id}
             data={item}

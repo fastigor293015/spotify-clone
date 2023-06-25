@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import useInterval from "@/hooks/useInterval";
 import useLoadImage from "@/hooks/useLoadImage";
 import usePlayer from "@/hooks/usePlayer";
-import { Song } from "@/types";
+import useImageDominantColor from "@/hooks/useImageDominantColor";
 import { BsPauseFill, BsPlayFill } from "react-icons/bs";
 import { IoIosArrowDown } from "react-icons/io";
 import { RxDotsHorizontal } from "react-icons/rx";
@@ -15,17 +15,8 @@ import { AiFillStepBackward, AiFillStepForward } from "react-icons/ai";
 import LikeButton from "../buttons/LikeButton";
 import Slider from "../Slider";
 import QueueButton from "../buttons/QueueButton";
-import useImageDominantColor from "@/hooks/useImageDominantColor";
-
-const formatTime = (time: number | null) => {
-  if (!time || isNaN(time)) {
-    return "-:--";
-  }
-  const mins = Math.floor(time / 60);
-  const secs = Math.floor(time - Math.floor(time / 60) * 60);
-
-  return mins + ":" + (secs < 10 ? `0${secs}` : secs);
-}
+import { formatTime } from "@/utils";
+import { Song } from "@/types";
 
 interface MobilePlayerProps {
   song: Song;
@@ -65,13 +56,13 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
   const onRewind = (value: number) => {
     sound?.seek([value]);
     setSeconds(sound?.seek([]));
-    setTime(formatTime(sound.seek([])));
+    setTime(sound?.seek([]) === 0 ? "0:00" : formatTime(sound.seek([])));
   }
 
   useInterval(() => {
     if (sound) {
       setSeconds(sound.seek([]));
-      setTime(formatTime(sound.seek([])));
+      setTime(sound?.seek([]) === 0 ? "0:00" : formatTime(sound.seek([])));
     }
   }, 1000);
 
@@ -91,7 +82,7 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
             <p>{song.author}</p>
           </div>
           <div className="flex items-center gap-2">
-            <LikeButton songId={song.id} className="p-1" iconSize={30} />
+            <LikeButton id={song.id} className="p-1" iconSize={30} />
             <button className="p-1" onClick={handlePlay}>
               <Icon size={30} />
             </button>
@@ -134,7 +125,7 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
               <p className="text-2xl font-bold">{song.title}</p>
               <p className="opacity-70">{song.author}</p>
             </div>
-            <LikeButton songId={song.id} />
+            <LikeButton id={song.id} />
           </div>
           <div className="mx-3 mb-6">
             <Slider

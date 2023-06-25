@@ -6,6 +6,7 @@ interface PlayerStore {
   ids: string[];
   activeId?: string;
   playlistId?: string;
+  playlistName?: string;
   volume: number;
   isMobilePlayerOpen: boolean;
   play?: () => void;
@@ -14,7 +15,7 @@ interface PlayerStore {
   onPlayNext: () => void;
   onPlayPrev: () => void;
   setId: (id: string) => void;
-  setIds: (ids: string[], playlistId?: string) => void;
+  setIds: (ids: string[], playlistId?: string, playlistName?: string) => void;
   addToQueue: (ids: string[]) => void;
   setVolume: (value: number) => void;
   reset: () => void;
@@ -61,7 +62,7 @@ const usePlayer = create<PlayerStore>()(
         get().setId(prevSong);
       },
       setId: (id: string) => set({ activeId: id }),
-      setIds: (ids: string[], playlistId?: string) => set({ ids, playlistId }),
+      setIds: (ids: string[], playlistId?: string, playlistName?: string) => set({ ids, playlistId, playlistName }),
       addToQueue: (ids: string[]) => set({ ids: [...get().ids, ...ids] }),
       setVolume: (value: number) => set({ volume: value }),
       reset: () => set({

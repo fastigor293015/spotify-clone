@@ -6,6 +6,7 @@ import PlayButton from "@/components/buttons/PlayButton";
 import useGetSongsByIds from "@/hooks/useGetSongsByIds";
 import useImageDominantColor from "@/hooks/useImageDominantColor";
 import useLikedSongs from "@/hooks/useLikedSongs";
+import usePlayActions from "@/hooks/usePlayActions";
 import { useUser } from "@/hooks/useUser";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -15,6 +16,7 @@ const LikedContent = () => {
   const router = useRouter();
   const  { isLoading, user } = useUser();
   const likedSongs = useLikedSongs();
+  const { songHandlePlay } = usePlayActions(likedSongs.songs, "liked", "Liked Songs");
   const { songs } = useGetSongsByIds(likedSongs.songs);
   const likedColor = useImageDominantColor("/images/liked.png");
 
@@ -26,7 +28,12 @@ const LikedContent = () => {
 
   const stickyContent = (
     <div className="flex items-center gap-2">
-      <PlayButton playlistId="liked" songs={songs} className="opacity-100" />
+      <PlayButton
+        playlistId="liked"
+        playlistName="Liked Songs"
+        songs={songs}
+        className="opacity-100"
+      />
       <p className="text-2xl text-white font-bold">Liked Songs</p>
     </div>
   )
@@ -104,7 +111,8 @@ const LikedContent = () => {
         <div className="p-6">
           <PlayButton
             songs={songs}
-            playlistId={"liked"}
+            playlistId="liked"
+            playlistName="Liked Songs"
             className="p-[18px]"
             iconSize={20}
           />
@@ -128,6 +136,7 @@ const LikedContent = () => {
               <MediaItem
                 key={song.id}
                 data={song}
+                onClick={(id: string) => songHandlePlay(id)}
                 number={i + 1}
                 likeBtn
               />

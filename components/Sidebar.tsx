@@ -56,9 +56,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             className="
               flex
               flex-col
-              gap-y-4
-              px-5
-              py-4
+              px-3
+              py-2
             "
           >
             {routes.map((item) => (

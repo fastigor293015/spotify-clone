@@ -120,7 +120,7 @@ const Header: React.FC<HeaderProps> = ({
         </div>
 
         {stickyContent && (
-          <div className="hidden md:flex flex-1 transition" style={{ opacity: stickyContentOpacity }}>
+          <div className={twMerge(`hidden md:flex flex-1 transition duration-300`, stickyContentOpacity === 0 && "opacity-0 pointer-events-none")}>
             {stickyContent}
           </div>
         )}

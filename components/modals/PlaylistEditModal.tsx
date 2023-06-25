@@ -14,8 +14,9 @@ import { RxDotsHorizontal } from "react-icons/rx";
 import { twMerge } from "tailwind-merge";
 import DropdownMenu, { DropdownItem } from "../DropdownMenu";
 import { toast } from "react-hot-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import useLoadImage from "@/hooks/useLoadImage";
 
 const PlaylistEditModal = () => {
   const router = useRouter();
@@ -24,7 +25,8 @@ const PlaylistEditModal = () => {
     register,
     setValue,
     handleSubmit,
-    watch
+    watch,
+    reset
   } = useForm<FieldValues>({
     defaultValues: {
       image: playlistData?.image_path,
@@ -36,6 +38,15 @@ const PlaylistEditModal = () => {
   const supabaseClient = useSupabaseClient();
 
   const image = watch("image");
+  const playlistImageUrl = useLoadImage(playlistData?.image_path!);
+
+  useEffect(() => {
+    reset({
+      image: playlistData?.image_path,
+      title: playlistData?.title,
+      description: playlistData?.description
+    });
+  }, [playlistData]);
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     try {
@@ -115,22 +126,22 @@ const PlaylistEditModal = () => {
               fill
               alt="Playlist"
               className="object-cover"
-              src={image}
+              src={playlistImageUrl!}
             />
           ) : (
             <RiMusic2Line size={50} />
           )}
-          <div className={twMerge(`absolute inset-0 flex flex-col items-center justify-center pt-5 text-white bg-neutral-800 opacity-0 group-hover:opacity-100`, image && "bg-black/70")}>
+          <div className={twMerge(`absolute inset-0 flex flex-col items-center justify-center pt-5 text-white bg-neutral-800 opacity-0 hover:opacity-100`, image && "bg-black/70")}>
             <HiOutlinePencil size={50} />
             <p>Choose a photo</p>
-            <DropdownMenu className="absolute top-2 right-2 rounded-full p-[6px] bg-neutral-900" items={dropdownItems} align="start">
-              <RxDotsHorizontal size={20} />
-            </DropdownMenu>
           </div>
+          <DropdownMenu className="absolute top-2 right-2 rounded-full p-[6px] bg-neutral-900 opacity-0 group-hover:opacity-100" items={dropdownItems} align="start">
+            <RxDotsHorizontal size={20} />
+          </DropdownMenu>
         </label>
         <Input disabled={isLoading} className="hidden" id="upload-image" type="file" accept="image/.jpg, image/.jpeg, image/.png" onChange={(e) => setValue("image", URL.createObjectURL(e.target.files?.[0]!))} />
         <Input disabled={isLoading} placeholder="Name" {...register("title")} />
-        <Textarea disabled={isLoading} placeholder="Description" {...register("description")} />
+        <Textarea className="resize-none" disabled={isLoading} placeholder="Description" {...register("description")} />
         <div className="col-span-2 text-right">
           <Button
             disabled={isLoading}
@@ -145,7 +156,9 @@ const PlaylistEditModal = () => {
             Save
           </Button>
         </div>
-        <p className="col-span-2 text-[11px] leading-4 font-bold">By proceeding, you agree to give Spotify access to the image you choose to upload. Please make sure you have the right to upload the image.</p>
+        <p className="col-span-2 text-[11px] leading-4 font-bold">
+          By proceeding, you agree to give Spotify access to the image you choose to upload. Please make sure you have the right to upload the image.
+        </p>
       </form>
     </Modal>
   );

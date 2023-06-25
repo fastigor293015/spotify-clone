@@ -1,7 +1,8 @@
 "use client";
 
 import MediaItem from "@/components/MediaItem";
-import useOnPlay from "@/hooks/useOnPlay";
+import usePlayActions from "@/hooks/usePlayActions";
+import useOnPlay from "@/hooks/usePlayActions";
 import { Song } from "@/types";
 
 interface SearchContentProps {
@@ -11,6 +12,8 @@ interface SearchContentProps {
 const SearchContent: React.FC<SearchContentProps> = ({
   songs
 }) => {
+  const { songHandlePlay } = usePlayActions(songs.map((song) => song.id));
+
   if (songs.length === 0) {
     return (
       <div
@@ -34,6 +37,7 @@ const SearchContent: React.FC<SearchContentProps> = ({
         <MediaItem
           key={song.id}
           data={song}
+          onClick={(id: string) => songHandlePlay(id)}
           likeBtn
         />
       ))}

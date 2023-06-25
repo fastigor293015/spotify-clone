@@ -1,10 +1,9 @@
 "use client";
 
-import usePlayer from "@/hooks/usePlayer";
 import { Song } from "@/types";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { FaPlay } from "react-icons/fa";
+import PlayButton from "./buttons/PlayButton";
 
 interface ListItemProps {
   image: string;
@@ -20,17 +19,10 @@ const ListItem: React.FC<ListItemProps> = ({
   songs
 }) => {
   const router = useRouter();
-  const player = usePlayer();
 
   const onClick  = () => {
     // Add authentication before push
     router.push(href);
-  }
-
-  const handlePlayBtn = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    player.setId(songs[0].id)
-    player.setIds(songs.map((song) => song.id))
   }
 
   return (
@@ -65,26 +57,18 @@ const ListItem: React.FC<ListItemProps> = ({
       <p className="font-medium truncate py-5">
         {name}
       </p>
-      <div
-        onClick={handlePlayBtn}
+      <PlayButton
+        songs={songs}
+        playlistId="liked"
+        playlistName="Liked Songs"
         className="
           absolute
-          transition
-          opacity-0
-          rounded-full
-          flex
-          items-center
-          justify-center
-          bg-green-500
-          p-4
-          drop-shadow-md
           right-5
+          opacity-0
           group-hover:opacity-100
           hover:scale-110
         "
-      >
-        <FaPlay className="text-black" />
-      </div>
+      />
     </button>
   );
 }

@@ -11,11 +11,12 @@ export interface Song {
 };
 
 export interface Playlist {
-  id?: string;
+  id: string;
+  created_at?: string;
   user_id: string;
   email: string;
   title: string;
-  description: string;
+  description?: string;
   image_path?: string | null;
   songs: string[];
 };

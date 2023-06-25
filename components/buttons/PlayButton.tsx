@@ -1,5 +1,6 @@
 "use client";
 
+import usePlayActions from "@/hooks/usePlayActions";
 import usePlayer from "@/hooks/usePlayer";
 import { Song } from "@/types";
 import { useCallback, useMemo } from "react";
@@ -9,6 +10,7 @@ import { twMerge } from "tailwind-merge";
 interface PlayButtonProps {
   songs: Song[];
   playlistId?: string;
+  playlistName?: string;
   className?: string;
   iconSize?: number | string;
 }
@@ -16,31 +18,21 @@ interface PlayButtonProps {
 const PlayButton: React.FC<PlayButtonProps> = ({
   songs,
   playlistId,
+  playlistName,
   className,
   iconSize = 16
 }) => {
   const player = usePlayer();
+  const { playlistHandlePlay, isActive } = usePlayActions(songs.map((song) => song.id), playlistId, playlistName);
 
-  const isActive = useMemo(() => player.playlistId === playlistId, [player, playlistId]);
-
-  const handleClick = useCallback(() => {
-    if (songs.length === 0) return;
-    if (!isActive) {
-      player.setIds(songs.map((song) => song.id), playlistId);
-      player.setId(songs[0].id);
-    };
-    if (!player.play || !player.pause || !isActive) return;
-
-    if (!player.isPlaying) {
-      player.play();
-    } else {
-      player.pause();
-    }
-  }, [player, isActive, songs, playlistId]);
+  const handlePlay = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    playlistHandlePlay();
+  }
 
   return (
     <button
-      onClick={handleClick}
+      onClick={handlePlay}
       className={twMerge(`
         flex
         items-center

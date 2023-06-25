@@ -13,7 +13,7 @@ const Player = () => {
 
   const songUrl = useLoadSongUrl(song!);
 
-  if (!song || !songUrl || !player.activeId || !user || !subscription) {
+  if (!song || !songUrl || !player.activeId || !user) {
     return null;
   }
 
