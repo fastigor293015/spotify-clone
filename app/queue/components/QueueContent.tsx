@@ -12,7 +12,7 @@ import { useEffect, useMemo } from "react";
 const QueueContent = () => {
   const player = usePlayer();
   const router = useRouter();
-  const { songHandlePlay } = usePlayActions(player.ids);
+  const { songHandlePlay, isActivePlaylist } = usePlayActions(player.ids, player.playlistId, player.playlistName);
   const { songs } = useGetSongsByIds(player.ids);
 
   const { isLoading, user } = useUser();
@@ -27,7 +27,7 @@ const QueueContent = () => {
     console.log(songs);
   }, [songs]);
 
-  const firstInQueue = useMemo(() => songs.findIndex((song) => song.id === player.activeId), [player, songs]);
+  const firstInQueue = useMemo(() => player.activeIndex, [player]);
   const nextSongs = useMemo(() => songs.slice(firstInQueue + 1), [songs, firstInQueue]);
 
   if (songs.length === 0) {
@@ -54,7 +54,9 @@ const QueueContent = () => {
         <MediaItem
           number={1}
           data={songs[firstInQueue]}
-          onClick={(id: string) => songHandlePlay(id)}
+          index={firstInQueue}
+          isActivePlaylist={isActivePlaylist}
+          onClick={(id, index) => songHandlePlay(id, index)}
           likeBtn
         />
       </div>
@@ -68,10 +70,12 @@ const QueueContent = () => {
         </h2>
         {nextSongs.map((song, i) => (
           <MediaItem
-            key={song.id}
+            key={`${i}-${song.id}`}
             number={i + 2}
             data={song}
-            onClick={(id: string) => songHandlePlay(id)}
+            index={firstInQueue + i + 1}
+            isActivePlaylist={isActivePlaylist}
+            onClick={(id, index) => songHandlePlay(id, index)}
             likeBtn
           />
         ))}

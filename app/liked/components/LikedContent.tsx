@@ -16,7 +16,7 @@ const LikedContent = () => {
   const router = useRouter();
   const  { isLoading, user } = useUser();
   const likedSongs = useLikedSongs();
-  const { songHandlePlay } = usePlayActions(likedSongs.songs, "liked", "Liked Songs");
+  const { songHandlePlay, isActivePlaylist } = usePlayActions(likedSongs.songs, "liked", "Liked Songs");
   const { songs } = useGetSongsByIds(likedSongs.songs);
   const likedColor = useImageDominantColor("/images/liked.png");
 
@@ -136,7 +136,9 @@ const LikedContent = () => {
               <MediaItem
                 key={song.id}
                 data={song}
-                onClick={(id: string) => songHandlePlay(id)}
+                index={i}
+                isActivePlaylist={isActivePlaylist}
+                onClick={(id, index) => songHandlePlay(id, index)}
                 number={i + 1}
                 likeBtn
               />

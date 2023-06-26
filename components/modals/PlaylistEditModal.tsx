@@ -1,29 +1,29 @@
 "use client";
 
-import usePlaylistEditModal from "@/hooks/usePlaylistEditModal";
-import Modal from "./Modal";
-import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
-import { RiMusic2Line } from "react-icons/ri";
-import Image from "next/image";
-import Input from "../Input";
-import Textarea from "../TextArea";
-import Button from "../buttons/Button";
+import { useEffect, useMemo, useState } from "react";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import Image from "next/image";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import usePlaylistEditModal from "@/hooks/usePlaylistEditModal";
+import useLoadImage from "@/hooks/useLoadImage";
+import { RiMusic2Line } from "react-icons/ri";
 import { HiOutlinePencil } from "react-icons/hi";
 import { RxDotsHorizontal } from "react-icons/rx";
 import { twMerge } from "tailwind-merge";
-import DropdownMenu, { DropdownItem } from "../DropdownMenu";
 import { toast } from "react-hot-toast";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import useLoadImage from "@/hooks/useLoadImage";
+import uniqid from "uniqid";
+import Textarea from "../TextArea";
+import Input from "../Input";
+import Button from "../buttons/Button";
+import Modal from "./Modal";
+import DropdownMenu, { DropdownItem } from "../DropdownMenu";
 
 const PlaylistEditModal = () => {
   const router = useRouter();
   const { isOpen, onClose, playlistData } = usePlaylistEditModal();
   const {
     register,
-    setValue,
     handleSubmit,
     watch,
     reset
@@ -37,12 +37,17 @@ const PlaylistEditModal = () => {
   const [isLoading, setIsLoading] = useState(false);
   const supabaseClient = useSupabaseClient();
 
+  const title = watch("title");
+  const description = watch("description");
   const image = watch("image");
-  const playlistImageUrl = useLoadImage(playlistData?.image_path!);
+
+  const isValuesChanged = useMemo(() => title !== playlistData?.title || description !== playlistData?.description || image !== playlistData?.image_path, [title, description, image, playlistData]);
+
+  const uploadedImgBlobUrl = useMemo(() => image?.[0] instanceof File ? URL.createObjectURL(image?.[0]) : "", [image]);
 
   useEffect(() => {
     reset({
-      image: playlistData?.image_path,
+      image: [playlistData?.image_path],
       title: playlistData?.title,
       description: playlistData?.description
     });
@@ -51,19 +56,54 @@ const PlaylistEditModal = () => {
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     try {
       setIsLoading(true);
-      const { data: supabaseData, error } = await supabaseClient
-        .from("playlists")
-        .update({
-          title: data.title,
-          description: data.description,
-        })
-        .eq("id", playlistData?.id)
-        .select();
 
-      console.log(supabaseData);
+      const imageFile = data.image?.[0];
 
-      if (error) {
-        return toast.error(error.message);
+      if (!imageFile) {
+        const { error: supabaseError } = await supabaseClient
+          .from("playlists")
+          .update({
+            title: data.title,
+            description: data.description,
+            image_path: null,
+          })
+          .eq("id", playlistData?.id)
+          .select();
+
+        if (supabaseError) {
+          setIsLoading(false);
+          return toast.error(supabaseError.message);
+        }
+      } else {
+        const uniqueID = uniqid();
+
+        const { data: imageData, error: imageError } = await supabaseClient
+          .storage
+          .from("images")
+          .upload(`image-playlist${playlistData?.id}-${uniqueID}`, imageFile, {
+            cacheControl: "3600",
+            upsert: false,
+          });
+
+        if (imageError) {
+          setIsLoading(false);
+          return toast.error("Failed image upload");
+        }
+
+        const { error: supabaseError } = await supabaseClient
+          .from("playlists")
+          .update({
+            title: data.title,
+            description: data.description,
+            image_path: imageData.path,
+          })
+          .eq("id", playlistData?.id)
+          .select();
+
+        if (supabaseError) {
+          setIsLoading(false);
+          return toast.error(supabaseError.message);
+        }
       }
 
       toast.success("Successfully updated!");
@@ -91,7 +131,7 @@ const PlaylistEditModal = () => {
     },
     {
       label: "Remove photo",
-      onClick: () => {},
+      onClick: () => reset({ image: null }),
     },
   ];
 
@@ -126,7 +166,7 @@ const PlaylistEditModal = () => {
               fill
               alt="Playlist"
               className="object-cover"
-              src={playlistImageUrl!}
+              src={image?.[0] instanceof File ? uploadedImgBlobUrl : playlistData?.publicImageUrl!}
             />
           ) : (
             <RiMusic2Line size={50} />
@@ -139,12 +179,12 @@ const PlaylistEditModal = () => {
             <RxDotsHorizontal size={20} />
           </DropdownMenu>
         </label>
-        <Input disabled={isLoading} className="hidden" id="upload-image" type="file" accept="image/.jpg, image/.jpeg, image/.png" onChange={(e) => setValue("image", URL.createObjectURL(e.target.files?.[0]!))} />
+        <Input disabled={isLoading} className="hidden" id="upload-image" type="file" accept="image/*" {...register("image", { required: true })} />
         <Input disabled={isLoading} placeholder="Name" {...register("title")} />
         <Textarea className="resize-none" disabled={isLoading} placeholder="Description" {...register("description")} />
         <div className="col-span-2 text-right">
           <Button
-            disabled={isLoading}
+            disabled={isLoading || !isValuesChanged}
             type="submit"
             className="
               w-auto

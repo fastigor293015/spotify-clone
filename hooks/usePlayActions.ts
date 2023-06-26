@@ -10,16 +10,16 @@ const usePlayActions = (songs: string[], playlistId?: string, playlistName?: str
   const authModal = useAuthModal();
   const { user, subscription} = useUser();
 
-  const isActive = useMemo(() => player.playlistId === playlistId, [player, playlistId]);
+  const isActivePlaylist = useMemo(() => player.playlistId === playlistId, [player, playlistId]);
 
-  const songHandlePlay = useCallback((id: string) => {
+  const songHandlePlay = useCallback((id: string, index: number) => {
     if (!user) {
       return authModal.onOpen();
     }
 
-    if (player.activeId !== id) {
+    if (player.activeIndex !== index || !isActivePlaylist) {
       player.setIds(songs, playlistId, playlistName);
-      return player.setId(id);
+      return player.setId(id, index);
     }
     if (!player.pause || !player.play) return;
     if (player.isPlaying) {
@@ -27,7 +27,7 @@ const usePlayActions = (songs: string[], playlistId?: string, playlistName?: str
     } else {
       player.play();
     }
-  }, [user, player, authModal, songs, playlistId, playlistName]);
+  }, [user, player, authModal, songs, playlistId, playlistName, isActivePlaylist]);
 
   const playlistHandlePlay = useCallback(() => {
     if (!user) {
@@ -35,24 +35,24 @@ const usePlayActions = (songs: string[], playlistId?: string, playlistName?: str
     }
 
     if (songs.length === 0) return;
-    if (!isActive) {
+    if (!isActivePlaylist) {
       player.setIds(songs, playlistId, playlistName);
-      player.setId(songs[0]);
+      player.setId(songs[0], 0);
     };
     if (!player.play || !player.pause) return;
 
-    if (!player.isPlaying) {
-      player.play();
-    } else {
+    if (player.isPlaying) {
       player.pause();
+    } else {
+      player.play();
     }
-  }, [user, player, authModal, isActive, songs]);
+  }, [user, player, authModal, isActivePlaylist, songs, playlistId, playlistName]);
 
   return useMemo(() => ({
     songHandlePlay,
     playlistHandlePlay,
-    isActive
-  }), [songHandlePlay, playlistHandlePlay, isActive]);
+    isActivePlaylist
+  }), [songHandlePlay, playlistHandlePlay, isActivePlaylist]);
 };
 
 export default usePlayActions;

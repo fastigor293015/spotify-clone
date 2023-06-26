@@ -34,19 +34,20 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
   const router = useRouter();
   const player = usePlayer();
   const playlistEditModal = usePlaylistEditModal();
-  const { songHandlePlay } = usePlayActions(playlist.songs, playlist.id, playlist.title);
-  const { songHandlePlay: recommendedSongHandlePlay } = usePlayActions(recommendedSongs.map((song) => song.id));
+  const playActions = usePlayActions(playlist.songs, playlist.id, playlist.title);
+  const recommendedPlayActions = usePlayActions(recommendedSongs.map((song) => song.id));
   const { songs } = useGetSongsByIds(playlist.songs);
-  const playlistImage = useLoadImage(playlist.image_path ? playlist.image_path : songs?.[0]);
+  const firstSongImage = useLoadImage(songs?.[0]);
+  const playlistImage = playlist.image_path || firstSongImage;
   const headerColor = useImageDominantColor(playlistImage);
   const { user } = useUser();
   const supabaseClient = useSupabaseClient();
 
   useEffect(() => {
     if (!playlist) return;
-    playlistEditModal.setData({ ...playlist, image_path: playlist?.image_path || songs?.[0]?.image_path });
+    playlistEditModal.setData({ ...playlist, publicImageUrl: playlistImage });
     console.log(playlistEditModal.playlistData);
-  }, [playlist]);
+  }, [playlist, playlistImage]);
 
   const deletePlaylistHandler = async (e?: React.MouseEvent) => {
     if (!user) return;
@@ -222,7 +223,9 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
               <MediaItem
                 key={song.id}
                 data={song}
-                onClick={(id: string) => songHandlePlay(id)}
+                index={i}
+                isActivePlaylist={playActions.isActivePlaylist}
+                onClick={(id, index) => playActions.songHandlePlay(id, index)}
                 number={i + 1}
                 likeBtn
               />
@@ -234,12 +237,14 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
         <div className="mt-10 px-6">
           <h2 className="mb-3 text-2xl font-bold">Recommended</h2>
           <p className="mb-6 text-neutral-400 text-sm">{!playlist.songs || playlist.songs.length === 0 ? "Based on the title of this playlist" : "Based on what's in this playlist"}</p>
-          {recommendedSongs.map((song) =>
+          {recommendedSongs.map((song, i) =>
             !playlist.songs.includes(song.id) && (
               <MediaItem
                 key={song.id}
                 data={song}
-                onClick={(id: string) => recommendedSongHandlePlay(id)}
+                index={i}
+                isActivePlaylist={recommendedPlayActions.isActivePlaylist}
+                onClick={(id, index) => recommendedPlayActions.songHandlePlay(id, index)}
                 addBtn
               />
             )

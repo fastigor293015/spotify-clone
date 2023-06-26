@@ -3,7 +3,7 @@
 import usePlayActions from "@/hooks/usePlayActions";
 import usePlayer from "@/hooks/usePlayer";
 import { Song } from "@/types";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { FaPause, FaPlay } from "react-icons/fa";
 import { twMerge } from "tailwind-merge";
 
@@ -23,12 +23,12 @@ const PlayButton: React.FC<PlayButtonProps> = ({
   iconSize = 16
 }) => {
   const player = usePlayer();
-  const { playlistHandlePlay, isActive } = usePlayActions(songs.map((song) => song.id), playlistId, playlistName);
+  const { playlistHandlePlay, isActivePlaylist } = usePlayActions(songs.map((song) => song.id), playlistId, playlistName);
 
-  const handlePlay = (e: React.MouseEvent) => {
+  const handlePlay = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     playlistHandlePlay();
-  }
+  }, [playlistHandlePlay]);
 
   return (
     <button
@@ -47,7 +47,7 @@ const PlayButton: React.FC<PlayButtonProps> = ({
         active:opacity-70
       `, className)}
     >
-      {isActive && player.isPlaying ? (
+      {isActivePlaylist && player.isPlaying ? (
         <FaPause size={iconSize} />
       ) : (
         <FaPlay size={iconSize} />

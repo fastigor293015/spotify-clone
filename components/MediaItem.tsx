@@ -19,7 +19,9 @@ import { useUser } from "@/hooks/useUser";
 
 interface MediaItemProps {
   data: Song;
-  onClick: (id: string) => void;
+  index: number;
+  isActivePlaylist: boolean;
+  onClick: (id: string, index: number) => void;
   number?: number;
   likeBtn?: boolean;
   addBtn?: boolean;
@@ -27,6 +29,8 @@ interface MediaItemProps {
 
 const MediaItem: React.FC<MediaItemProps> = ({
   data,
+  index,
+  isActivePlaylist,
   onClick,
   number,
   likeBtn,
@@ -42,8 +46,11 @@ const MediaItem: React.FC<MediaItemProps> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const isPlaylistPath = useMemo(() => pathname.includes("/playlist/"), [pathname]);
+  const isQueuePath = useMemo(() => pathname === "/queue", [pathname]);
   const isInCurPlaylist = useMemo(() =>  playlistData?.songs.includes(data.id), [playlistData, data]);
-  const Icon = useMemo(() => player.isPlaying && player.activeId === data.id ? BsPauseFill : BsPlayFill, [player, data]);
+  const isEqualToPlayingSong = useMemo(() => player.activeId === data.id && player.activeIndex === index && isActivePlaylist, [player, data, index, isActivePlaylist]);
+
+  const Icon = useMemo(() => player.isPlaying && isEqualToPlayingSong ? BsPauseFill : BsPlayFill, [player, isEqualToPlayingSong]);
 
   const addToCurPlaylist = async (e?: React.MouseEvent) => {
     if (!user) return;
@@ -106,10 +113,10 @@ const MediaItem: React.FC<MediaItemProps> = ({
   }
 
   const playBtnHandler = () => {
-    onClick(data.id);
+    onClick(data.id, index);
   }
 
-  const defaultDropdownItems: DropdownItem[] = isInCurPlaylist && isPlaylistPath && user?.id === playlistData?.user_id ? [
+  const dropdownItems: DropdownItem[] = isInCurPlaylist && isPlaylistPath && user?.id === playlistData?.user_id ? [
     {
       label: "Add to queue",
       onClick: () => player.addToQueue([data.id]),
@@ -117,6 +124,15 @@ const MediaItem: React.FC<MediaItemProps> = ({
     {
       label: "Remove from this playlist",
       onClick: () => removeFromCurPlaylist(),
+    },
+  ] : isQueuePath && index !== player.activeIndex ? [
+    {
+      label: "Add to queue",
+      onClick: () => player.addToQueue([data.id]),
+    },
+    {
+      label: "Remove from queue",
+      onClick: () => player.removeFromQueue(data.id, index),
     },
   ] : [
     {
@@ -144,8 +160,8 @@ const MediaItem: React.FC<MediaItemProps> = ({
       <div className="flex items-center gap-x-3">
         {number && (
           <div className="flex items-center justify-center w-4 h-4 ml-2 mr-1">
-            <div className={twMerge(`text-neutral-400 group-hover:hidden group-focus:hidden`, player.activeId === data.id && "text-green-500")}>
-              {player.isPlaying && player.activeId === data.id
+            <div className={twMerge(`text-neutral-400 group-hover:hidden group-focus:hidden`, isEqualToPlayingSong && "text-green-500")}>
+              {player.isPlaying && isEqualToPlayingSong
                 ? <Image width={14} height={14} src="/images/equaliser-animated.gif" alt="Equalizer" />
                 : number}
             </div>
@@ -181,7 +197,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
                 bg-black/50
                 opacity-0
                 group-hover:opacity-100
-              `, player.isPlaying && player.activeId === data.id && "opacity-100")}
+              `, player.isPlaying && isEqualToPlayingSong && "opacity-100")}
               onClick={playBtnHandler}
             >
               <Icon size={24} />
@@ -195,7 +211,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
           gap-y-1
           truncate
         ">
-          <p className={twMerge(`text-white truncate`, player.activeId === data.id && "text-green-500")}>
+          <p className={twMerge(`text-white truncate`, isEqualToPlayingSong && "text-green-500")}>
             {data.title}
           </p>
           <p className="text-neutral-400 text-sm truncate">
@@ -211,7 +227,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
           Add
         </Button>
       ) : (
-        <DropdownMenu items={defaultDropdownItems} className="mx-2 opacity-0 group-hover:opacity-100" align="end">
+        <DropdownMenu items={dropdownItems} className="mx-2 opacity-0 group-hover:opacity-100" align="end">
           <RxDotsHorizontal size={20} />
         </DropdownMenu>
       )}

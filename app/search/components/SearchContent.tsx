@@ -12,7 +12,7 @@ interface SearchContentProps {
 const SearchContent: React.FC<SearchContentProps> = ({
   songs
 }) => {
-  const { songHandlePlay } = usePlayActions(songs.map((song) => song.id));
+  const { songHandlePlay, isActivePlaylist } = usePlayActions(songs.map((song) => song.id));
 
   if (songs.length === 0) {
     return (
@@ -33,11 +33,13 @@ const SearchContent: React.FC<SearchContentProps> = ({
 
   return (
     <div className="flex flex-col w-full mb-7 px-6">
-      {songs.map((song) => (
+      {songs.map((song, i) => (
         <MediaItem
           key={song.id}
           data={song}
-          onClick={(id: string) => songHandlePlay(id)}
+          index={i}
+          isActivePlaylist={isActivePlaylist}
+          onClick={(id, index) => songHandlePlay(id, index)}
           likeBtn
         />
       ))}

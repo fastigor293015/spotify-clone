@@ -20,7 +20,7 @@ const Player = () => {
   return (
     <PlayerContent
       // после переключения песни изменённый ключ пересоздаст данный компонент, и хук useSound сработает как надо
-      key={`${player.playlistId}-${songUrl}`}
+      key={`${player.activeIndex}-${player.playlistId}-${songUrl}`}
       song={song}
       songUrl={songUrl}
     />
