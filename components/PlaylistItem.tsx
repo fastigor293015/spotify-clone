@@ -11,7 +11,7 @@ import { twMerge } from "tailwind-merge";
 import { Playlist } from "@/types";
 import { useEffect, useMemo } from "react";
 import ContextMenu, { ContextItem } from "./ContextMenu";
-import usePlaylistEditModal from "@/hooks/usePlaylistEditModal";
+import usePlaylistActions from "@/hooks/usePlaylistActions";
 
 interface PlaylistItemProps {
   data: Playlist;
@@ -22,10 +22,10 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
 }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const { playlistId, isPlaying, addToQueue } = usePlayer();
-  const playlistEditModal = usePlaylistEditModal();
+  const { playlistId, isPlaying } = usePlayer();
   const { songs } = useGetSongsByIds(data.songs);
   const playlistImage = useLoadImage(data.image_path || songs?.[0]);
+  const { addToQueue, editDetails, deletePlaylist } = usePlaylistActions(data, playlistImage);
   const isLikedPlaylist = useMemo(() => data.title === "Liked Songs", [data]);
   const playlistUrl = useMemo(() => isLikedPlaylist ? "/liked" : `/playlist/${data.id}`, [data, isLikedPlaylist]);
 
@@ -36,18 +36,15 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
   const contextMenuItems: ContextItem[] = !isLikedPlaylist ? [
     {
       label: "Add to queue",
-      onClick: () => addToQueue(data.songs),
+      onClick: addToQueue,
     },
     {
       label: "Edit details",
-      onClick: () => {
-        playlistEditModal.setData({ ...data, publicImageUrl: playlistImage });
-        playlistEditModal.onOpen();
-      },
+      onClick: editDetails,
     },
     {
       label: "Delete",
-      onClick: () => addToQueue(data.songs),
+      onClick: deletePlaylist,
     },
   ] : [];
 

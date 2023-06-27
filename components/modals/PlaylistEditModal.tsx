@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import Image from "next/image";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import usePlaylistEditModal from "@/hooks/usePlaylistEditModal";
-import useLoadImage from "@/hooks/useLoadImage";
 import { RiMusic2Line } from "react-icons/ri";
 import { HiOutlinePencil } from "react-icons/hi";
 import { RxDotsHorizontal } from "react-icons/rx";
@@ -35,6 +34,7 @@ const PlaylistEditModal = () => {
     }
   });
   const [isLoading, setIsLoading] = useState(false);
+  const imageLabelRef = useRef<HTMLLabelElement | null>(null);
   const supabaseClient = useSupabaseClient();
 
   const title = watch("title");
@@ -47,7 +47,7 @@ const PlaylistEditModal = () => {
 
   useEffect(() => {
     reset({
-      image: [playlistData?.image_path],
+      image: playlistData?.image_path,
       title: playlistData?.title,
       description: playlistData?.description
     });
@@ -127,7 +127,7 @@ const PlaylistEditModal = () => {
   const dropdownItems: DropdownItem[] = [
     {
       label: "Change photo",
-      onClick: () => {},
+      onClick: () => imageLabelRef.current?.click(),
     },
     {
       label: "Remove photo",
@@ -142,20 +142,24 @@ const PlaylistEditModal = () => {
       title="Edit details"
       className="md:max-w-[524px]"
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-[180px_1fr] grid-rows-[46px_118px_auto_auto] gap-4 mt-8">
+      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-[180px_1fr] gap-3 sm:gap-4 mt-8">
         <label
+          ref={imageLabelRef}
           htmlFor="upload-image"
           className="
             group
-            row-span-2
             relative
+            row-span-2
+            col-span-2
+            sm:col-span-1
+            justify-self-center
             flex
             items-center
             justify-center
-            h-32
-            w-32
-            lg:h-[180px]
-            lg:w-[180px]
+            h-[180px]
+            w-[180px]
+            mb-5
+            sm:mb-0
             shadow-4xl
             text-neutral-400
             bg-neutral-800
@@ -166,7 +170,7 @@ const PlaylistEditModal = () => {
               fill
               alt="Playlist"
               className="object-cover"
-              src={image?.[0] instanceof File ? uploadedImgBlobUrl : playlistData?.publicImageUrl!}
+              src={typeof image === "string" ? image : uploadedImgBlobUrl}
             />
           ) : (
             <RiMusic2Line size={50} />
@@ -179,9 +183,9 @@ const PlaylistEditModal = () => {
             <RxDotsHorizontal size={20} />
           </DropdownMenu>
         </label>
-        <Input disabled={isLoading} className="hidden" id="upload-image" type="file" accept="image/*" {...register("image", { required: true })} />
-        <Input disabled={isLoading} placeholder="Name" {...register("title")} />
-        <Textarea className="resize-none" disabled={isLoading} placeholder="Description" {...register("description")} />
+        <Input className="hidden" disabled={isLoading} id="upload-image" type="file" accept="image/*" {...register("image")} />
+        <Input className="col-span-2 sm:col-span-1 h-[40px]" disabled={isLoading} placeholder="Name" {...register("title")} />
+        <Textarea className="col-span-2 sm:col-span-1 resize-none h-[124px]" disabled={isLoading} placeholder="Description" {...register("description")} />
         <div className="col-span-2 text-right">
           <Button
             disabled={isLoading || !isValuesChanged}

@@ -8,7 +8,7 @@ import { useUser } from "@/hooks/useUser";
 
 const Player = () => {
   const player = usePlayer();
-  const { user, subscription } = useUser();
+  const { user } = useUser();
   const { song } = useGetSongById(player.activeId);
 
   const songUrl = useLoadSongUrl(song!);

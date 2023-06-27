@@ -1,22 +1,27 @@
 "use client";
 
 import useLoadImage from "@/hooks/useLoadImage";
-import { Song } from "@/types";
 import Image from "next/image";
 import PlayButton from "./buttons/PlayButton";
-import usePlayer from "@/hooks/usePlayer";
+import useGetSongsByIds from "@/hooks/useGetSongsByIds";
+import { useRouter } from "next/navigation";
+import { RiMusic2Line } from "react-icons/ri";
+import { Playlist } from "@/types";
 
-interface SongItemProps {
-  data: Song;
+interface PlaylistMediaItemProps {
+  playlist: Playlist;
 }
 
-const SongItem: React.FC<SongItemProps> = ({
-  data,
+const PlaylistMediaItem: React.FC<PlaylistMediaItemProps> = ({
+  playlist
 }) => {
-  const player = usePlayer();
-  const imagePath = useLoadImage(data);
+  const router = useRouter();
+  const { songs: songsData } = useGetSongsByIds(playlist.songs);
+  const imagePath = useLoadImage(playlist.image_path || songsData[0]);
+
   return (
     <div
+      onClick={() => router.push(`/playlist/${playlist.id}`)}
       className="
         relative
         group
@@ -37,23 +42,32 @@ const SongItem: React.FC<SongItemProps> = ({
       <div
         className="
           relative
+          flex
+          items-center
+          justify-center
           aspect-square
           w-full
           h-full
           rounded-md
+          text-neutral-400
+          bg-neutral-700
           overflow-hidden
         "
       >
-        <Image
-          className="object-cover"
-          src={imagePath || "/images/liked.png"}
-          fill
-          alt="Image"
-        />
+        {imagePath ? (
+          <Image
+            fill
+            alt="Image"
+            className="object-cover"
+            src={imagePath}
+          />
+        ) : (
+          <RiMusic2Line className="w-[40px] h-[40px] md:w-[50px] md:h-[50px]" />
+        )}
       </div>
       <div className="flex flex-col items-start w-full pt-4 gap-y-1">
         <p className="font-semibold truncate w-full">
-          {data.title}
+          {playlist.title}
         </p>
         <p
           className="
@@ -64,7 +78,7 @@ const SongItem: React.FC<SongItemProps> = ({
             truncate
           "
         >
-          By {data.author}
+          {playlist.email}
         </p>
       </div>
       <div className="
@@ -73,7 +87,9 @@ const SongItem: React.FC<SongItemProps> = ({
         right-5
       ">
         <PlayButton
-          songs={[data]}
+          playlistId={playlist.id}
+          playlistName={playlist.title}
+          songs={songsData}
           className="
             translate-y-1/4
             opacity-0
@@ -86,4 +102,4 @@ const SongItem: React.FC<SongItemProps> = ({
   );
 }
 
-export default SongItem;
+export default PlaylistMediaItem;

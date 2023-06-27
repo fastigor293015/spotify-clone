@@ -15,12 +15,11 @@ import useImageDominantColor from "@/hooks/useImageDominantColor";
 import PlayButton from "@/components/buttons/PlayButton";
 import DropdownMenu, { DropdownItem } from "@/components/DropdownMenu";
 import { RxDotsHorizontal } from "react-icons/rx";
-import usePlayer from "@/hooks/usePlayer";
-import { toast } from "react-hot-toast";
-import { useRouter } from "next/navigation";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import LikeButton from "@/components/buttons/LikeButton";
 import usePlayActions from "@/hooks/usePlayActions";
+import usePlaylistActions from "@/hooks/usePlaylistActions";
+import ContextMenu, { ContextItem } from "@/components/ContextMenu";
+import { HiOutlinePencil } from "react-icons/hi";
 
 interface PlaylistContentProps {
   playlist: Playlist;
@@ -31,45 +30,21 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
   playlist,
   recommendedSongs
 }) => {
-  const router = useRouter();
-  const player = usePlayer();
   const playlistEditModal = usePlaylistEditModal();
   const playActions = usePlayActions(playlist.songs, playlist.id, playlist.title);
   const recommendedPlayActions = usePlayActions(recommendedSongs.map((song) => song.id));
   const { songs } = useGetSongsByIds(playlist.songs);
   const firstSongImage = useLoadImage(songs?.[0]);
   const playlistImage = playlist.image_path || firstSongImage;
+  const { addToQueue, editDetails, deletePlaylist } = usePlaylistActions(playlist, playlistImage);
   const headerColor = useImageDominantColor(playlistImage);
   const { user } = useUser();
-  const supabaseClient = useSupabaseClient();
 
   useEffect(() => {
     if (!playlist) return;
-    playlistEditModal.setData({ ...playlist, publicImageUrl: playlistImage });
+    playlistEditModal.setData({ ...playlist, image_path: playlistImage });
     console.log(playlistEditModal.playlistData);
   }, [playlist, playlistImage]);
-
-  const deletePlaylistHandler = async (e?: React.MouseEvent) => {
-    if (!user) return;
-    e?.stopPropagation();
-
-    try {
-      const { error } = await supabaseClient
-        .from("playlists")
-        .delete()
-        .eq("id", playlist.id);
-
-      if (error) {
-        toast.error(error.message);
-      }
-
-      toast.success("Playlist deleted!");
-      router.push("/");
-
-    } catch (error) {
-      toast.error("Something went wrong!");
-    }
-  }
 
   const stickyContent = (
     <div className="flex items-center gap-2">
@@ -86,103 +61,113 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
   const dropdownItems: DropdownItem[] = user?.id === playlist.user_id ? [
     {
       label: "Add to queue",
-      onClick: () => player.addToQueue(playlist.songs),
+      onClick: addToQueue,
+    },
+    {
+      label: "Edit details",
+      onClick: editDetails,
     },
     {
       label: "Delete",
-      onClick: () => deletePlaylistHandler(),
+      onClick: deletePlaylist,
     },
   ] : [
     {
       label: "Add to queue",
-      onClick: () => player.addToQueue(playlist.songs),
+      onClick: addToQueue,
     },
   ];
 
   return (
     <>
       <Header bgcolor={playlistImage ? headerColor : "rgb(83, 83, 83)"} stickyContent={stickyContent} scrollValue={360}>
-        <div className="mt-10">
-          <div
-            className="
-              flex
-              flex-col
-              md:flex-row
-              items-center
-              md:items-end
-              text-center
-              md:text-start
-              gap-x-5
-            "
-          >
-            <label
-              onClick={playlistEditModal.onOpen}
-              htmlFor="upload"
-              className={twMerge(`
-                relative
+        <ContextMenu items={dropdownItems}>
+          <div className="mt-10">
+            <div
+              className="
                 flex
+                flex-col
+                md:flex-row
                 items-center
-                justify-center
-                h-32
-                w-32
-                md:h-40
-                md:w-40
-                lg:h-[232px]
-                lg:w-[232px]
-                shadow-4xl
-                text-neutral-400
-                bg-neutral-800
-              `, user?.id !== playlist.user_id && "pointer-events-none")}
+                md:items-end
+                text-center
+                md:text-start
+                gap-5
+              "
             >
-              {playlistImage ? (
-                <Image
-                  fill
-                  alt="Playlist"
-                  className="object-cover"
-                  src={playlistImage}
-                />
-              ) : (
-                <RiMusic2Line size={50} />
-              )}
-
-            </label>
-            <input className="hidden" id="upload" type="file" accept="image/.jpg, image/.jpeg, image/.png" onChange={(e) => console.log(e.target.value)} />
-            <div className="
-              flex
-              flex-col
-              gap-y-2
-              mt-4
-              md:mt-0
-            ">
-              <p className="hidden md:block font-bold text-sm">
-                Playlist
-              </p>
-              <h1
-                className="
-                  text-white
-                  text-4xl
-                  sm:text-5xl
-                  lg:text-8xl
-                  leading-[1.2]
-                  sm:leading-[1.2]
-                  lg:leading-[1.2]
-                  font-bold
-                  truncate
-                  -translate-y-1
-                "
+              <label
+                onClick={playlistEditModal.onOpen}
+                htmlFor="upload-image"
+                className={twMerge(`
+                  relative
+                  flex
+                  items-center
+                  justify-center
+                  h-32
+                  w-32
+                  md:h-40
+                  md:w-40
+                  lg:h-[232px]
+                  lg:w-[232px]
+                  shadow-4xl
+                  text-neutral-400
+                  bg-neutral-800
+                `, user?.id !== playlist.user_id && "pointer-events-none")}
               >
-                {playlist.title}
-              </h1>
-              {playlist.description && (
-                <p className="text-sm text-white/70">{playlist.description}</p>
-              )}
-              <p className="text-sm font-bold">
-                {playlist.email}
-                {playlist.songs.length > 0 && <span className="font-normal"> • {playlist.songs.length} {playlist.songs.length === 1 ? "song" : "songs"}</span>}
-              </p>
+                {playlistImage ? (
+                  <Image
+                    fill
+                    alt="Playlist"
+                    className="object-cover"
+                    src={playlistImage}
+                  />
+                ) : (
+                  <RiMusic2Line className="w-[40px] h-[40px] md:w-[50px] md:h-[50px]" />
+                )}
+                <div className={twMerge(`absolute inset-0 flex flex-col items-center justify-center pt-5 text-white text-sm md:text-base bg-neutral-800 opacity-0 hover:opacity-100`, playlistImage && "bg-black/70")}>
+                  <HiOutlinePencil className="w-[40px] h-[40px] md:w-[50px] md:h-[50px]" />
+                  <p>Choose a photo</p>
+                </div>
+              </label>
+              <div className="
+                flex
+                flex-col
+                gap-y-2
+                mt-4
+                md:mt-0
+              ">
+                <p className="hidden md:block font-bold text-sm">
+                  Playlist
+                </p>
+                <h1
+                  onClick={editDetails}
+                  className="
+                    text-white
+                    text-4xl
+                    sm:text-5xl
+                    lg:text-8xl
+                    leading-[1.2]
+                    sm:leading-[1.2]
+                    lg:leading-[1.2]
+                    font-bold
+                    truncate
+                    -translate-y-1
+                    cursor-pointer
+                  "
+                >
+                  {playlist.title}
+                </h1>
+                {playlist.description && (
+                  <p onClick={editDetails} className="text-sm text-white/70">{playlist.description}</p>
+                )}
+                <p className="text-sm font-bold">
+                  {playlist.email}
+                  {playlist.songs.length > 0 && <span className="font-normal"> • {playlist.songs.length} {playlist.songs.length === 1 ? "song" : "songs"}</span>}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        </ContextMenu>
       </Header>
       <div className="flex items-center gap-8 p-6">
         {playlist.songs.length > 0 && (

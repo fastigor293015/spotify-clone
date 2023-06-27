@@ -1,16 +1,12 @@
 import { Playlist } from "@/types";
 import { create } from "zustand";
 
-type PlaylistWithPublicUrl = Playlist & {
-  publicImageUrl: string | null;
-}
-
 interface PlaylistEditModalStore {
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
-  playlistData: PlaylistWithPublicUrl | null;
-  setData: (data: PlaylistWithPublicUrl) => void;
+  playlistData: Playlist | null;
+  setData: (data: Playlist) => void;
 };
 
 const usePlaylistEditModal = create<PlaylistEditModalStore>((set) => ({
@@ -18,7 +14,7 @@ const usePlaylistEditModal = create<PlaylistEditModalStore>((set) => ({
   onOpen: () => set({ isOpen: true }),
   onClose: () => set({ isOpen: false }),
   playlistData: null,
-  setData: (data: PlaylistWithPublicUrl) => set({ playlistData: { ...data } })
+  setData: (data: Playlist) => set({ playlistData: { ...data } })
 }));
 
 export default usePlaylistEditModal;

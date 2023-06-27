@@ -9,12 +9,9 @@ import useUploadModal from "@/hooks/useUploadModal";
 import { Playlist } from "@/types";
 import useSubscribeModal from "@/hooks/useSubscribeModal";
 import DropdownMenu, { DropdownItem } from "./DropdownMenu";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
-import { useState } from "react";
-import { toast } from "react-hot-toast";
-import { useRouter } from "next/navigation";
 import PlaylistItem from "./PlaylistItem";
 import useLikedSongs from "@/hooks/useLikedSongs";
+import usePlaylistActions from "@/hooks/usePlaylistActions";
 
 interface LibraryProps {
   playlists: Playlist[];
@@ -23,14 +20,12 @@ interface LibraryProps {
 const Library: React.FC<LibraryProps> = ({
   playlists
 }) => {
-  const router = useRouter();
+  const { createPlaylist } = usePlaylistActions();
   const subscribeModal = useSubscribeModal();
   const authModal = useAuthModal();
   const uploadModal = useUploadModal();
   const { songs: likedSongs } = useLikedSongs();
   const { user, subscription } = useUser();
-  const supabaseClient = useSupabaseClient();
-  const [isPlaylistLoading, setIsPlaylistLoading] = useState(false);
 
   const handleSongUpload = () => {
     if (!user) {
@@ -44,44 +39,7 @@ const Library: React.FC<LibraryProps> = ({
     return uploadModal.onOpen();
   };
 
-  const handlePlaylistCreation = async () => {
-    if (!user) {
-      return authModal.onOpen();
-    }
 
-    if (!subscription) {
-      return subscribeModal.onOpen();
-    }
-
-    try {
-      setIsPlaylistLoading(true);
-      const { data, error } = await supabaseClient
-        .from("playlists")
-        .insert({
-          title: "My Playlist",
-          user_id: user.id,
-          email: user.email,
-          songs: [],
-        })
-        .select();
-
-      if (error) {
-        setIsPlaylistLoading(false);
-        return toast.error(error.message);
-      }
-
-      console.log(data);
-
-      setIsPlaylistLoading(false);
-      toast.success("Playlist created!");
-      router.refresh();
-      router.push(`/playlist/${data[0].id}`);
-    } catch (error) {
-      toast.error("Something went wrong");
-    } finally {
-      setIsPlaylistLoading(false);
-    }
-  }
 
   const likedPlaylist: Playlist = {
     id: "liked",
@@ -100,8 +58,7 @@ const Library: React.FC<LibraryProps> = ({
     {
       label: "Create a new playlist",
       icon: CgPlayListAdd,
-      onClick: handlePlaylistCreation,
-      disabled: isPlaylistLoading,
+      onClick: createPlaylist,
     },
   ];
 
