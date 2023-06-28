@@ -36,7 +36,7 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
   const { songs } = useGetSongsByIds(playlist.songs);
   const firstSongImage = useLoadImage(songs?.[0]);
   const playlistImage = playlist.image_path || firstSongImage;
-  const { addToQueue, editDetails, deletePlaylist } = usePlaylistActions(playlist, playlistImage);
+  const { editDetails, dropdownItems } = usePlaylistActions(playlist, playlistImage);
   const headerColor = useImageDominantColor(playlistImage);
   const { user } = useUser();
 
@@ -57,26 +57,6 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
       <p className="text-2xl text-white font-bold">{playlist.title}</p>
     </div>
   )
-
-  const dropdownItems: DropdownItem[] = user?.id === playlist.user_id ? [
-    {
-      label: "Add to queue",
-      onClick: addToQueue,
-    },
-    {
-      label: "Edit details",
-      onClick: editDetails,
-    },
-    {
-      label: "Delete",
-      onClick: deletePlaylist,
-    },
-  ] : [
-    {
-      label: "Add to queue",
-      onClick: addToQueue,
-    },
-  ];
 
   return (
     <>

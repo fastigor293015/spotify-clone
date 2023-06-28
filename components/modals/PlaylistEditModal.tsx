@@ -59,7 +59,22 @@ const PlaylistEditModal = () => {
 
       const imageFile = data.image?.[0];
 
-      if (!imageFile) {
+      if (typeof data.image === "string") {
+        // Если картинка не была изменена
+        const { error: supabaseError } = await supabaseClient
+          .from("playlists")
+          .update({
+            title: data.title,
+            description: data.description,
+          })
+          .eq("id", playlistData?.id);
+
+        if (supabaseError) {
+          setIsLoading(false);
+          return toast.error(supabaseError.message);
+        }
+      } else if (!imageFile) {
+        // Если картинка была убрана
         const { error: supabaseError } = await supabaseClient
           .from("playlists")
           .update({
@@ -67,14 +82,14 @@ const PlaylistEditModal = () => {
             description: data.description,
             image_path: null,
           })
-          .eq("id", playlistData?.id)
-          .select();
+          .eq("id", playlistData?.id);
 
         if (supabaseError) {
           setIsLoading(false);
           return toast.error(supabaseError.message);
         }
       } else {
+        // Если была загружена картинка
         const uniqueID = uniqid();
 
         const { data: imageData, error: imageError } = await supabaseClient
@@ -97,8 +112,7 @@ const PlaylistEditModal = () => {
             description: data.description,
             image_path: imageData.path,
           })
-          .eq("id", playlistData?.id)
-          .select();
+          .eq("id", playlistData?.id);
 
         if (supabaseError) {
           setIsLoading(false);

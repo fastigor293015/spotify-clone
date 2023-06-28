@@ -9,8 +9,8 @@ import { LuVolume2 } from "react-icons/lu";
 import { RiMusic2Line } from "react-icons/ri";
 import { twMerge } from "tailwind-merge";
 import { Playlist } from "@/types";
-import { useEffect, useMemo } from "react";
-import ContextMenu, { ContextItem } from "./ContextMenu";
+import { useMemo } from "react";
+import ContextMenu from "./ContextMenu";
 import usePlaylistActions from "@/hooks/usePlaylistActions";
 
 interface PlaylistItemProps {
@@ -25,31 +25,12 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
   const { playlistId, isPlaying } = usePlayer();
   const { songs } = useGetSongsByIds(data.songs);
   const playlistImage = useLoadImage(data.image_path || songs?.[0]);
-  const { addToQueue, editDetails, deletePlaylist } = usePlaylistActions(data, playlistImage);
-  const isLikedPlaylist = useMemo(() => data.title === "Liked Songs", [data]);
+  const { dropdownItems } = usePlaylistActions(data, playlistImage);
+  const isLikedPlaylist = useMemo(() => data.id === "liked", [data]);
   const playlistUrl = useMemo(() => isLikedPlaylist ? "/liked" : `/playlist/${data.id}`, [data, isLikedPlaylist]);
 
-  useEffect(() => {
-    console.log(playlistImage)
-  }, [playlistImage]);
-
-  const contextMenuItems: ContextItem[] = !isLikedPlaylist ? [
-    {
-      label: "Add to queue",
-      onClick: addToQueue,
-    },
-    {
-      label: "Edit details",
-      onClick: editDetails,
-    },
-    {
-      label: "Delete",
-      onClick: deletePlaylist,
-    },
-  ] : [];
-
   return (
-    <ContextMenu items={contextMenuItems}>
+    <ContextMenu items={dropdownItems}>
       <div onClick={() => router.push(playlistUrl)} className={twMerge(`grid grid-cols-[auto_1fr] items-center gap-x-3 p-2 rounded-md hover:bg-neutral-800/50 cursor-pointer`, playlistUrl === pathname && "bg-white/[0.06]")}>
         <div className="relative flex items-center justify-center h-12 w-12 rounded-md text-neutral-400 bg-neutral-800 shadow-4xl overflow-hidden">
           {isLikedPlaylist ? (

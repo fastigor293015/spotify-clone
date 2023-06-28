@@ -1,5 +1,5 @@
 import { Playlist } from "@/types";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import usePlayer from "./usePlayer";
 import { useUser } from "./useUser";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
@@ -86,11 +86,33 @@ const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null)
     }
   }, [user, router, pathname, supabaseClient, playlist]);
 
+  const dropdownItems = useMemo(() => playlist?.id === "liked" ? []
+    : playlist?.user_id === user?.id ? [
+      {
+        label: "Add to queue",
+        onClick: addToQueue,
+      },
+      {
+        label: "Edit details",
+        onClick: editDetails,
+      },
+      {
+        label: "Delete",
+        onClick: deletePlaylist,
+      },
+    ] : [
+      {
+        label: "Add to queue",
+        onClick: addToQueue,
+      },
+    ], [user, playlist, addToQueue, editDetails, deletePlaylist]);
+
   return {
     createPlaylist,
     addToQueue,
     editDetails,
-    deletePlaylist
+    deletePlaylist,
+    dropdownItems
   };
 };
 
