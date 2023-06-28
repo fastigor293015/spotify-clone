@@ -45,7 +45,10 @@ const PlayButton: React.FC<PlayButtonProps> = ({
         hover:scale-110
         active:scale-100
         active:opacity-70
-      `, className)}
+      `,
+        className,
+        isActivePlaylist && player.isPlaying && "opacity-100 translate-y-0"
+      )}
     >
       {isActivePlaylist && player.isPlaying ? (
         <FaPause size={iconSize} />

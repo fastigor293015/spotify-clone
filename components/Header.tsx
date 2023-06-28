@@ -82,7 +82,7 @@ const Header: React.FC<HeaderProps> = ({
         gap-2
         text-neutral-900
       `)}>
-        <div className="absolute inset-0 -z-[1] bg-current" style={{ opacity: bgOpacity, color: bgcolor }} />
+        <div className="absolute inset-0 -z-[1] bg-current transition-colors duration-300" style={{ opacity: bgOpacity, color: bgcolor }} />
         <div className="
           hidden
           md:flex
@@ -220,6 +220,8 @@ const Header: React.FC<HeaderProps> = ({
           from-current
           text-neutral-900
           pointer-events-none
+          transition-colors
+          duration-300
         `, (pathname === "/liked" || pathname.includes("/playlist/")) && "h-[400px]")}
         style={{ color:  bgcolor }}
       />
