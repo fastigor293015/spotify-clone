@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, FieldValues, SubmitHandler } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
@@ -15,14 +15,16 @@ import Input from "../Input";
 import Button from "../buttons/Button";
 
 const UploadModal = () => {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [songDuration, setSongDuration] = useState(0);
   const uploadModal = useUploadModal();
   const { user } = useUser();
   const supabaseClient = useSupabaseClient();
-  const router = useRouter();
 
   const {
     register,
+    watch,
     handleSubmit,
     reset
   } = useForm<FieldValues>({
@@ -33,6 +35,41 @@ const UploadModal = () => {
       image: null,
     }
   });
+
+  const song = watch("song");
+
+  useEffect(() => {
+    if (!song || !song?.[0]) {
+      setSongDuration(0);
+      return;
+    }
+
+    const file = song?.[0];
+
+    // Create instance of FileReader
+    const reader = new FileReader();
+
+    // When the file has been succesfully read
+    reader.addEventListener("load", (e) => {
+
+      // Create an instance of AudioContext
+      var audioContext = new window.AudioContext();
+
+      // Asynchronously decode audio file data contained in an ArrayBuffer.
+      audioContext.decodeAudioData(e.target?.result as ArrayBuffer, function(buffer) {
+          // Obtain the duration in seconds of the audio file (with milliseconds as well, a float value)
+          const duration = buffer.duration;
+          setSongDuration(Math.floor(duration));
+          // example 12.3234 seconds
+          console.log("The duration of the song is of: " + duration + " seconds");
+          // Alternatively, just display the integer value with
+          // parseInt(duration)
+          // 12 seconds
+      });
+  });
+
+    reader.readAsArrayBuffer(file);
+  }, [song]);
 
   const onChange = (open: boolean) => {
     if (!open) {
@@ -97,7 +134,8 @@ const UploadModal = () => {
           title: values.title,
           author: values.author,
           image_path: imageData.path,
-          song_path: songData.path
+          song_path: songData.path,
+          duration: songDuration,
         });
 
         if (supabaseError) {

@@ -16,6 +16,7 @@ import { usePathname, useRouter } from "next/navigation";
 import DropdownMenu, { DropdownItem } from "./DropdownMenu";
 import { RxDotsHorizontal } from "react-icons/rx";
 import { useUser } from "@/hooks/useUser";
+import { formatTime } from "@/utils";
 
 interface MediaItemProps {
   data: Song;
@@ -115,6 +116,8 @@ const MediaItem: React.FC<MediaItemProps> = ({
   const playBtnHandler = () => {
     onClick(data.id, index);
   }
+
+  const songDuration = useMemo(() => formatTime(parseInt(data.duration)), [data]);
 
   const dropdownItems: DropdownItem[] = isInCurPlaylist && isPlaylistPath && user?.id === playlistData?.user_id ? [
     {
@@ -227,9 +230,12 @@ const MediaItem: React.FC<MediaItemProps> = ({
           Add
         </Button>
       ) : (
-        <DropdownMenu items={dropdownItems} className="mx-2 opacity-0 group-hover:opacity-100" align="end">
-          <RxDotsHorizontal size={20} />
-        </DropdownMenu>
+        <>
+          <div className="text-sm text-neutral-400">{songDuration}</div>
+          <DropdownMenu items={dropdownItems} className="mx-2 opacity-0 group-hover:opacity-100" align="end">
+            <RxDotsHorizontal size={20} />
+          </DropdownMenu>
+        </>
       )}
     </div>
   );

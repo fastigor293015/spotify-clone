@@ -38,7 +38,7 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
   const Icon = player.isPlaying ? BsPauseFill : BsPlayFill;
 
   const trackDuration = useMemo(() => {
-    return formatTime((duration as number) / 1000);
+    return formatTime(parseInt(song.duration));
   }, [duration]);
 
   const handlePlay = useCallback((e: React.MouseEvent) => {

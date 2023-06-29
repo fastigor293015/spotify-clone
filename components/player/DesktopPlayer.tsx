@@ -36,10 +36,10 @@ const DesktopPlayer: React.FC<DesktopPlayerProps> = ({
 
   const trackDuration = useMemo(() => {
     if (showRemainingTime) {
-      return "-" + formatTime((duration as number) / 1000 - seconds + 0.99);
+      return "-" + formatTime(parseInt(song.duration) - seconds + 0.99);
     }
-    return formatTime((duration as number) / 1000);
-  }, [duration, showRemainingTime, seconds]);
+    return formatTime(parseInt(song.duration));
+  }, [showRemainingTime, seconds, song]);
 
   const handlePlay = useCallback(() => {
     if (!player.play || !player.pause) return;

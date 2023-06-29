@@ -197,7 +197,7 @@ const PlaylistEditModal = () => {
             <RxDotsHorizontal size={20} />
           </DropdownMenu>
         </label>
-        <Input className="hidden" disabled={isLoading} id="upload-image" type="file" accept="image/*" {...register("image")} />
+        <Input className="hidden" disabled={isLoading} id="upload-image" type="file" accept="image/.jpg, image/.jpeg, image/.png" {...register("image")} />
         <Input className="col-span-2 sm:col-span-1 h-[40px]" disabled={isLoading} placeholder="Name" {...register("title")} />
         <Textarea className="col-span-2 sm:col-span-1 resize-none h-[124px]" disabled={isLoading} placeholder="Description" {...register("description")} />
         <div className="col-span-2 text-right">
