@@ -26,7 +26,7 @@ const ListItem: React.FC<ListItemProps> = ({
   }
 
   return (
-    <button
+    <div
       onClick={onClick}
       className="
         relative
@@ -69,7 +69,7 @@ const ListItem: React.FC<ListItemProps> = ({
           hover:scale-110
         "
       />
-    </button>
+    </div>
   );
 }
 

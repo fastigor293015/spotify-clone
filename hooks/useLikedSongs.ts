@@ -1,4 +1,3 @@
-import { Song } from "@/types";
 import { create } from "zustand";
 
 interface LikedSongsStore {

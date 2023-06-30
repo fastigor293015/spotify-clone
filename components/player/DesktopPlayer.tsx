@@ -13,6 +13,7 @@ import Slider from "../Slider";
 import QueueButton from "../buttons/QueueButton";
 import { formatTime } from "@/utils";
 import { Song } from "@/types";
+import useSongActions from "@/hooks/useSongActions";
 
 interface DesktopPlayerProps {
   song: Song;
@@ -27,6 +28,7 @@ const DesktopPlayer: React.FC<DesktopPlayerProps> = ({
 }) => {
   const player = usePlayer();
   const imageUrl = useLoadImage(song);
+  const { isLiked, handleLike } = useSongActions(song.id);
   const [seconds, setSeconds] = useState(0);
   const [time, setTime] = useState("-:--");
   const [showRemainingTime, setShowRemainingTime] = useState(false);
@@ -114,7 +116,7 @@ const DesktopPlayer: React.FC<DesktopPlayerProps> = ({
             <p className="text-text-sm truncate">{song.title}</p>
             <p className="text-[11px] text-neutral-400 truncate">{song.author}</p>
           </div>
-          <LikeButton id={song.id} />
+          <LikeButton isLiked={isLiked} handleLike={handleLike} />
         </div>
       </div>
 

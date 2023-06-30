@@ -1,5 +1,5 @@
 import { Playlist } from "@/types";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import usePlayer from "./usePlayer";
 import { useUser } from "./useUser";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
@@ -8,6 +8,8 @@ import { usePathname, useRouter } from "next/navigation";
 import usePlaylistEditModal from "./usePlaylistEditModal";
 import useAuthModal from "./useAuthModal";
 import useSubscribeModal from "./useSubscribeModal";
+import { DropdownItem } from "@/components/DropdownMenu";
+import useLikedPlaylists from "./useLikedPlaylists";
 
 const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null) => {
   const router = useRouter();
@@ -18,6 +20,65 @@ const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null)
   const playlistEditModal = usePlaylistEditModal();
   const { user, subscription } = useUser();
   const supabaseClient = useSupabaseClient();
+  const likedPlaylists = useLikedPlaylists();
+
+  const isLiked = useMemo(() => !!likedPlaylists.playlists.find((playlistId) => playlistId === playlist?.id), [likedPlaylists, playlist]);
+
+  useEffect(() => {
+    if (!user?.id) {
+      return;
+    }
+
+    const fetchData = async () => {
+      const { data, error } = await supabaseClient
+        .from(`liked_playlists`)
+        .select("*")
+        .eq("user_id", user.id)
+        .eq(`playlist_id`, playlist?.id)
+        .single();
+
+      if (!error && data && !isLiked) {
+        likedPlaylists.toggle(playlist?.id!);
+      }
+    };
+
+    fetchData();
+  }, [playlist, supabaseClient, user?.id]);
+
+  const handleLike = useCallback(async () => {
+    if (!user) {
+      return authModal.onOpen();
+    }
+
+    if (isLiked) {
+      const { error } = await supabaseClient
+        .from(`liked_playlists`)
+        .delete()
+        .eq("user_id", user.id)
+        .eq(`playlist_id`, playlist?.id);
+
+      if (error) {
+        return toast.error(error.message);
+      }
+
+      likedPlaylists.toggle(playlist?.id!);
+
+    } else {
+      const { error } = await supabaseClient
+        .from(`liked_playlists`)
+        .insert({
+            playlist_id: playlist?.id,
+            user_id: user.id,
+          });
+
+      if (error) {
+        return toast.error(error.message);
+      }
+
+      likedPlaylists.toggle(playlist?.id!);
+      toast.success("Liked");
+    }
+  }, [user, router, authModal, supabaseClient, isLiked, playlist]);
 
   const createPlaylist = async () => {
     if (!user) {
@@ -86,7 +147,7 @@ const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null)
     }
   }, [user, router, pathname, supabaseClient, playlist]);
 
-  const dropdownItems = useMemo(() => playlist?.id === "liked" ? []
+  const dropdownItems = useMemo((): DropdownItem[] => playlist?.id === "liked" ? []
     : playlist?.user_id === user?.id ? [
       {
         label: "Add to queue",
@@ -105,9 +166,15 @@ const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null)
         label: "Add to queue",
         onClick: addToQueue,
       },
-    ], [user, playlist, addToQueue, editDetails, deletePlaylist]);
+      {
+        label: isLiked ? "Remove from your library" : "Add to your library",
+        onClick: handleLike,
+      }
+    ], [user, isLiked, handleLike, playlist, addToQueue, editDetails, deletePlaylist]);
 
   return {
+    isLiked,
+    handleLike,
     createPlaylist,
     addToQueue,
     editDetails,

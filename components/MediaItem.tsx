@@ -9,14 +9,12 @@ import { twMerge } from "tailwind-merge";
 import LikeButton from "./buttons/LikeButton";
 import Button from "./buttons/Button";
 import usePlaylistEditModal from "@/hooks/usePlaylistEditModal";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
-import { useMemo, useState } from "react";
-import { toast } from "react-hot-toast";
-import { usePathname, useRouter } from "next/navigation";
-import DropdownMenu, { DropdownItem } from "./DropdownMenu";
+import { useMemo } from "react";
+import { usePathname } from "next/navigation";
+import DropdownMenu from "./DropdownMenu";
 import { RxDotsHorizontal } from "react-icons/rx";
-import { useUser } from "@/hooks/useUser";
 import { formatTime } from "@/utils";
+import useSongActions from "@/hooks/useSongActions";
 
 interface MediaItemProps {
   data: Song;
@@ -37,112 +35,22 @@ const MediaItem: React.FC<MediaItemProps> = ({
   likeBtn,
   addBtn,
 }) => {
-  const router = useRouter();
   const pathname = usePathname();
   const { playlistData } = usePlaylistEditModal();
+  const { isLiked, handleLike, isLoading, addToCurPlaylist, dropdownItems } = useSongActions(data.id, index);
   const player = usePlayer();
   const imageUrl = useLoadImage(data);
-  const supabaseClient = useSupabaseClient();
-  const { user } = useUser();
-  const [isLoading, setIsLoading] = useState(false);
 
   const isPlaylistPath = useMemo(() => pathname.includes("/playlist/"), [pathname]);
-  const isQueuePath = useMemo(() => pathname === "/queue", [pathname]);
   const isInCurPlaylist = useMemo(() =>  playlistData?.songs.includes(data.id), [playlistData, data]);
   const isEqualToPlayingSong = useMemo(() => player.activeId === data.id && player.activeIndex === index && isActivePlaylist, [player, data, index, isActivePlaylist]);
 
   const Icon = useMemo(() => player.isPlaying && isEqualToPlayingSong ? BsPauseFill : BsPlayFill, [player, isEqualToPlayingSong]);
-
-  const addToCurPlaylist = async (e?: React.MouseEvent) => {
-    if (!user) return;
-    e?.stopPropagation();
-
-    if (!playlistData?.songs) return null;
-
-    try {
-      setIsLoading(true);
-      const { error } = await supabaseClient
-        .from("playlists")
-        .update({
-          songs: [...playlistData.songs, data.id]
-        })
-        .eq("id", playlistData.id);
-
-      if (error) {
-        toast.error(error.message);
-      }
-
-      setIsLoading(false);
-      toast.success("Added to playlist");
-      router.refresh();
-
-    } catch (error) {
-      toast.error("Something went wrong!");
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  const removeFromCurPlaylist = async (e?: React.MouseEvent) => {
-    if (!user) return;
-    e?.stopPropagation();
-
-    if (!playlistData?.songs) return null;
-
-    try {
-      setIsLoading(true);
-      const { error } = await supabaseClient
-        .from("playlists")
-        .update({
-          songs: playlistData.songs.filter((song) => song !== data.id)
-        })
-        .eq("id", playlistData.id);
-
-      if (error) {
-        toast.error(error.message);
-      }
-
-      setIsLoading(false);
-      toast.success("Removed from playlist");
-      router.refresh();
-
-    } catch (error) {
-      toast.error("Something went wrong!");
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  const songDuration = useMemo(() => formatTime(parseInt(data.duration)), [data]);
 
   const playBtnHandler = () => {
     onClick(data.id, index);
   }
-
-  const songDuration = useMemo(() => formatTime(parseInt(data.duration)), [data]);
-
-  const dropdownItems: DropdownItem[] = isInCurPlaylist && isPlaylistPath && user?.id === playlistData?.user_id ? [
-    {
-      label: "Add to queue",
-      onClick: () => player.addToQueue([data.id]),
-    },
-    {
-      label: "Remove from this playlist",
-      onClick: () => removeFromCurPlaylist(),
-    },
-  ] : isQueuePath && index !== player.activeIndex ? [
-    {
-      label: "Add to queue",
-      onClick: () => player.addToQueue([data.id]),
-    },
-    {
-      label: "Remove from queue",
-      onClick: () => player.removeFromQueue(data.id, index),
-    },
-  ] : [
-    {
-      label: "Add to queue",
-      onClick: () => player.addToQueue([data.id]),
-    },
-  ];
 
   return (
     <div
@@ -223,7 +131,11 @@ const MediaItem: React.FC<MediaItemProps> = ({
         </div>
       </div>
       {likeBtn && (
-        <LikeButton className="mr-2 hidden group-hover:block transition-colors" id={data.id} />
+        <LikeButton
+          isLiked={isLiked}
+          handleLike={handleLike}
+          className="mr-2 hidden group-hover:block transition-colors"
+        />
       )}
       {addBtn && isPlaylistPath && !isInCurPlaylist ? (
         <Button onClick={addToCurPlaylist} className="w-auto mr-1 py-1 px-4 border-white/80 text-sm text-white bg-transparent hover:scale-110 hover:border-white hover:opacity-100" disabled={isLoading}>

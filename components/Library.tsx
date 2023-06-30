@@ -12,6 +12,8 @@ import DropdownMenu, { DropdownItem } from "./DropdownMenu";
 import PlaylistItem from "./PlaylistItem";
 import useLikedSongs from "@/hooks/useLikedSongs";
 import usePlaylistActions from "@/hooks/usePlaylistActions";
+import useLikedPlaylists from "@/hooks/useLikedPlaylists";
+import useGetPlaylistsByIds from "@/hooks/useGetPlaylistsByIds";
 
 interface LibraryProps {
   playlists: Playlist[];
@@ -25,6 +27,8 @@ const Library: React.FC<LibraryProps> = ({
   const authModal = useAuthModal();
   const uploadModal = useUploadModal();
   const { songs: likedSongs } = useLikedSongs();
+  const { playlists: ids } = useLikedPlaylists();
+  const { playlists: likedPlaylists } = useGetPlaylistsByIds(ids);
   const { user, subscription } = useUser();
 
   const handleSongUpload = () => {
@@ -39,15 +43,15 @@ const Library: React.FC<LibraryProps> = ({
     return uploadModal.onOpen();
   };
 
-
-
-  const likedPlaylist: Playlist = {
+  const likedSongsPlaylist: Playlist = {
     id: "liked",
     user_id: user?.id!,
     email: user?.email!,
     title: "Liked Songs",
     songs: [...likedSongs],
   }
+
+  const libraryPlaylists = [likedSongsPlaylist, ...playlists, ...likedPlaylists].sort((a, b) => new Date(a.created_at!).getMilliseconds() - new Date(b.created_at!).getMilliseconds());
 
   const dropdownItems: DropdownItem[] = [
     {
@@ -112,7 +116,7 @@ const Library: React.FC<LibraryProps> = ({
           px-2
         "
       >
-        {[likedPlaylist, ...playlists].map((item) => (
+        {libraryPlaylists.map((item) => (
           <PlaylistItem
             key={item.id}
             data={item}

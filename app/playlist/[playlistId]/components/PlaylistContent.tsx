@@ -13,12 +13,12 @@ import { useUser } from "@/hooks/useUser";
 import { twMerge } from "tailwind-merge";
 import useImageDominantColor from "@/hooks/useImageDominantColor";
 import PlayButton from "@/components/buttons/PlayButton";
-import DropdownMenu, { DropdownItem } from "@/components/DropdownMenu";
+import DropdownMenu from "@/components/DropdownMenu";
 import { RxDotsHorizontal } from "react-icons/rx";
 import LikeButton from "@/components/buttons/LikeButton";
 import usePlayActions from "@/hooks/usePlayActions";
 import usePlaylistActions from "@/hooks/usePlaylistActions";
-import ContextMenu, { ContextItem } from "@/components/ContextMenu";
+import ContextMenu from "@/components/ContextMenu";
 import { HiOutlinePencil } from "react-icons/hi";
 
 interface PlaylistContentProps {
@@ -36,7 +36,7 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
   const { songs } = useGetSongsByIds(playlist.songs);
   const firstSongImage = useLoadImage(songs?.[0]);
   const playlistImage = playlist.image_path || firstSongImage;
-  const { editDetails, dropdownItems } = usePlaylistActions(playlist, playlistImage);
+  const { isLiked, handleLike, editDetails, dropdownItems } = usePlaylistActions(playlist, playlistImage);
   const headerColor = useImageDominantColor(playlistImage);
   const { user } = useUser();
 
@@ -161,8 +161,8 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
         )}
         {user?.id !== playlist.user_id && (
           <LikeButton
-            id={playlist.id}
-            contentType="playlist"
+            isLiked={isLiked}
+            handleLike={handleLike}
             iconSize={35}
           />
         )}

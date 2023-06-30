@@ -14,6 +14,7 @@ import Player from '@/components/player/Player';
 
 import './globals.css';
 import getLikedPlaylists from '@/actions/getLikedPlaylists';
+import LikedPlaylistsProvider from '@/providers/LikedPlaylistsProvider';
 
 const font = Figtree({ subsets: ['latin'] });
 
@@ -34,8 +35,6 @@ export default async function RootLayout({
   const likedPlaylists = await getLikedPlaylists();
   const products = await getActiveProductsWithPrices();
 
-  const libraryPlaylists = [...userPlaylists, ...likedPlaylists].sort((a, b) => new Date(a.created_at!).getMilliseconds() - new Date(b.created_at!).getMilliseconds());
-
   return (
     <html lang="en">
       <body className={`${font.className} grid grid-rows-[minmax(200px,1fr),auto] h-full`}>
@@ -43,8 +42,9 @@ export default async function RootLayout({
         <SupabaseProvider>
           <UserProvider>
             <LikedSongsProvider songs={likedSongs} />
+            <LikedPlaylistsProvider playlists={likedPlaylists} />
             <ModalProvider products={products} />
-            <Sidebar playlists={libraryPlaylists}>
+            <Sidebar playlists={userPlaylists}>
               {children}
             </Sidebar>
             <Player />

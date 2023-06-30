@@ -3,7 +3,7 @@
 import usePlayActions from "@/hooks/usePlayActions";
 import usePlayer from "@/hooks/usePlayer";
 import { Song } from "@/types";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaPause, FaPlay } from "react-icons/fa";
 import { twMerge } from "tailwind-merge";
 
@@ -24,11 +24,18 @@ const PlayButton: React.FC<PlayButtonProps> = ({
 }) => {
   const player = usePlayer();
   const { playlistHandlePlay, isActivePlaylist } = usePlayActions(songs.map((song) => song.id), playlistId, playlistName);
+  const [hasMounted, setHasMounted] = useState(false);
 
   const handlePlay = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     playlistHandlePlay();
   }, [playlistHandlePlay]);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted) return null;
 
   return (
     <button

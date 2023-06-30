@@ -17,6 +17,7 @@ import Slider from "../Slider";
 import QueueButton from "../buttons/QueueButton";
 import { formatTime } from "@/utils";
 import { Song } from "@/types";
+import useSongActions from "@/hooks/useSongActions";
 
 interface MobilePlayerProps {
   song: Song;
@@ -31,6 +32,7 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
 }) => {
   const player = usePlayer();
   const imageUrl = useLoadImage(song);
+  const { isLiked, handleLike } = useSongActions(song.id);
   const [seconds, setSeconds] = useState(0);
   const [time, setTime] = useState("-:--");
   const imageColor = useImageDominantColor(imageUrl);
@@ -39,7 +41,7 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
 
   const trackDuration = useMemo(() => {
     return formatTime(parseInt(song.duration));
-  }, [duration]);
+  }, [song]);
 
   const handlePlay = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -82,7 +84,7 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
             <p>{song.author}</p>
           </div>
           <div className="flex items-center gap-2">
-            <LikeButton id={song.id} className="p-1" iconSize={30} />
+            <LikeButton isLiked={isLiked} handleLike={handleLike} className="p-1" iconSize={30} />
             <button className="p-1" onClick={handlePlay}>
               <Icon size={30} />
             </button>
@@ -125,7 +127,7 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
               <p className="text-2xl font-bold">{song.title}</p>
               <p className="opacity-70">{song.author}</p>
             </div>
-            <LikeButton id={song.id} />
+            <LikeButton isLiked={isLiked} handleLike={handleLike} />
           </div>
           <div className="mx-3 mb-6">
             <Slider
