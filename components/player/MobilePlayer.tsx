@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import useInterval from "@/hooks/useInterval";
 import useLoadImage from "@/hooks/useLoadImage";
 import usePlayer from "@/hooks/usePlayer";
+import useSongActions from "@/hooks/useSongActions";
 import useImageDominantColor from "@/hooks/useImageDominantColor";
 import { BsPauseFill, BsPlayFill } from "react-icons/bs";
 import { IoIosArrowDown } from "react-icons/io";
@@ -17,7 +18,6 @@ import Slider from "../Slider";
 import QueueButton from "../buttons/QueueButton";
 import { formatTime } from "@/utils";
 import { Song } from "@/types";
-import useSongActions from "@/hooks/useSongActions";
 
 interface MobilePlayerProps {
   song: Song;

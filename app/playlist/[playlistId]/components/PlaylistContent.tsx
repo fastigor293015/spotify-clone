@@ -193,6 +193,7 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
                 onClick={(id, index) => playActions.songHandlePlay(id, index)}
                 number={i + 1}
                 likeBtn
+                curPlaylist={playlist}
               />
             ))}
           </div>
@@ -211,6 +212,7 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
                 isActivePlaylist={recommendedPlayActions.isActivePlaylist}
                 onClick={(id, index) => recommendedPlayActions.songHandlePlay(id, index)}
                 addBtn
+                curPlaylist={playlist}
               />
             )
           )}

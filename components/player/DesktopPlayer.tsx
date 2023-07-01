@@ -62,7 +62,6 @@ const DesktopPlayer: React.FC<DesktopPlayerProps> = ({
   }
 
   const onRewind = (value: number) => {
-    console.log(sound?.seek([]))
     sound?.seek([value]);
     setSeconds(sound?.seek([]));
     setTime(sound?.seek([]) === 0 ? "0:00" : formatTime(sound.seek([])));

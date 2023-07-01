@@ -2,15 +2,13 @@
 
 import useLoadImage from "@/hooks/useLoadImage";
 import usePlayer from "@/hooks/usePlayer";
-import { Song } from "@/types";
+import { Playlist, Song } from "@/types";
 import Image from "next/image";
 import { BsPauseFill, BsPlayFill } from "react-icons/bs";
 import { twMerge } from "tailwind-merge";
 import LikeButton from "./buttons/LikeButton";
 import Button from "./buttons/Button";
-import usePlaylistEditModal from "@/hooks/usePlaylistEditModal";
 import { useMemo } from "react";
-import { usePathname } from "next/navigation";
 import DropdownMenu from "./DropdownMenu";
 import { RxDotsHorizontal } from "react-icons/rx";
 import { formatTime } from "@/utils";
@@ -24,6 +22,7 @@ interface MediaItemProps {
   number?: number;
   likeBtn?: boolean;
   addBtn?: boolean;
+  curPlaylist?: Playlist;
 }
 
 const MediaItem: React.FC<MediaItemProps> = ({
@@ -34,15 +33,12 @@ const MediaItem: React.FC<MediaItemProps> = ({
   number,
   likeBtn,
   addBtn,
+  curPlaylist
 }) => {
-  const pathname = usePathname();
-  const { playlistData } = usePlaylistEditModal();
-  const { isLiked, handleLike, isLoading, addToCurPlaylist, dropdownItems } = useSongActions(data.id, index);
+  const { isInCurPlaylist, isLiked, handleLike, isLoading, addToCurPlaylist, dropdownItems } = useSongActions(data.id, index, curPlaylist);
   const player = usePlayer();
   const imageUrl = useLoadImage(data);
 
-  const isPlaylistPath = useMemo(() => pathname.includes("/playlist/"), [pathname]);
-  const isInCurPlaylist = useMemo(() =>  playlistData?.songs.includes(data.id), [playlistData, data]);
   const isEqualToPlayingSong = useMemo(() => player.activeId === data.id && player.activeIndex === index && isActivePlaylist, [player, data, index, isActivePlaylist]);
 
   const Icon = useMemo(() => player.isPlaying && isEqualToPlayingSong ? BsPauseFill : BsPlayFill, [player, isEqualToPlayingSong]);
@@ -137,14 +133,14 @@ const MediaItem: React.FC<MediaItemProps> = ({
           className="mr-2 hidden group-hover:block transition-colors"
         />
       )}
-      {addBtn && isPlaylistPath && !isInCurPlaylist ? (
+      {addBtn && !isInCurPlaylist ? (
         <Button onClick={addToCurPlaylist} className="w-auto mr-1 py-1 px-4 border-white/80 text-sm text-white bg-transparent hover:scale-110 hover:border-white hover:opacity-100" disabled={isLoading}>
           Add
         </Button>
       ) : (
         <>
           <div className="text-sm text-neutral-400">{songDuration}</div>
-          <DropdownMenu items={dropdownItems} className="mx-2 opacity-0 group-hover:opacity-100" align="end">
+          <DropdownMenu items={dropdownItems} className="mx-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto" align="end">
             <RxDotsHorizontal size={20} />
           </DropdownMenu>
         </>

@@ -11,6 +11,7 @@ interface ModalProps {
   description?: string;
   children: React.ReactNode;
   className?: string;
+  closeBtn?: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -19,7 +20,8 @@ const Modal: React.FC<ModalProps> = ({
   title,
   description,
   children,
-  className
+  className,
+  closeBtn = true,
 }) => {
   return (
     <Dialog.Root
@@ -84,7 +86,7 @@ const Modal: React.FC<ModalProps> = ({
           <div>
             {children}
           </div>
-          <Dialog.Close asChild>
+          {closeBtn && <Dialog.Close asChild>
             <button
               className="
                 text-neutral-400
@@ -104,7 +106,7 @@ const Modal: React.FC<ModalProps> = ({
             >
               <IoMdClose />
             </button>
-          </Dialog.Close>
+          </Dialog.Close>}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

@@ -166,7 +166,7 @@ const Header: React.FC<HeaderProps> = ({
           "
         >
           {user ? (
-            <div className="flex gap-x-4 items-center">
+            <>
               <Button
                 onClick={handleLogout}
                 className="bg-white px-6 py-2"
@@ -179,33 +179,29 @@ const Header: React.FC<HeaderProps> = ({
               >
                 <FaUserAlt />
               </Button>
-            </div>
+            </>
           ) : (
             <>
-              <div>
-                <Button
-                  onClick={authModal.onOpen}
-                  className="
-                    bg-transparent
-                    text-neutral-300
-                    font-medium
-                  "
-                >
-                  Sign up
-                </Button>
-              </div>
-              <div>
-                <Button
-                  onClick={authModal.onOpen}
-                  className="
-                    bg-white
-                    px-6
-                    py-2
-                  "
-                >
-                  Log in
-                </Button>
-              </div>
+              <Button
+                onClick={authModal.onOpen}
+                className="
+                  bg-transparent
+                  text-neutral-300
+                  font-medium
+                "
+              >
+                Sign up
+              </Button>
+              <Button
+                onClick={authModal.onOpen}
+                className="
+                  bg-white
+                  px-6
+                  py-2
+                "
+              >
+                Log in
+              </Button>
             </>
           )}
         </div>

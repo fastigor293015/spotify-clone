@@ -205,7 +205,6 @@ const PlaylistEditModal = () => {
             disabled={isLoading || !isValuesChanged}
             type="submit"
             className="
-              w-auto
               bg-white
               px-6
               py-2

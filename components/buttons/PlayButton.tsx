@@ -6,6 +6,7 @@ import { Song } from "@/types";
 import { useCallback, useEffect, useState } from "react";
 import { FaPause, FaPlay } from "react-icons/fa";
 import { twMerge } from "tailwind-merge";
+import Button from "./Button";
 
 interface PlayButtonProps {
   songs: Song[];
@@ -38,20 +39,14 @@ const PlayButton: React.FC<PlayButtonProps> = ({
   if (!hasMounted) return null;
 
   return (
-    <button
+    <Button
       onClick={handlePlay}
       className={twMerge(`
         flex
         items-center
         p-4
-        rounded-full
-        text-black
-        bg-green-500
-        transition
+        border-none
         drop-shadow-md
-        hover:scale-110
-        active:scale-100
-        active:opacity-70
       `,
         className,
         isActivePlaylist && player.isPlaying && "opacity-100 translate-y-0"
@@ -62,7 +57,7 @@ const PlayButton: React.FC<PlayButtonProps> = ({
       ) : (
         <FaPlay size={iconSize} />
       )}
-    </button>
+    </Button>
   );
 }
 

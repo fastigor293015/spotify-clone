@@ -10,6 +10,7 @@ import useAuthModal from "./useAuthModal";
 import useSubscribeModal from "./useSubscribeModal";
 import { DropdownItem } from "@/components/DropdownMenu";
 import useLikedPlaylists from "./useLikedPlaylists";
+import useDeleteConfirmationModal from "./useDeleteConfirmationModal";
 
 const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null) => {
   const router = useRouter();
@@ -18,32 +19,35 @@ const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null)
   const authModal = useAuthModal();
   const subscribeModal = useSubscribeModal();
   const playlistEditModal = usePlaylistEditModal();
+  const deleteConfirmationModal = useDeleteConfirmationModal();
   const { user, subscription } = useUser();
   const supabaseClient = useSupabaseClient();
   const likedPlaylists = useLikedPlaylists();
+  const [isLoading, setIsLoading] = useState(false);
 
   const isLiked = useMemo(() => !!likedPlaylists.playlists.find((playlistId) => playlistId === playlist?.id), [likedPlaylists, playlist]);
 
-  useEffect(() => {
-    if (!user?.id) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (!user?.id) {
+  //     return;
+  //   }
 
-    const fetchData = async () => {
-      const { data, error } = await supabaseClient
-        .from(`liked_playlists`)
-        .select("*")
-        .eq("user_id", user.id)
-        .eq(`playlist_id`, playlist?.id)
-        .single();
+  //   const fetchData = async () => {
+  //     const { data, error } = await supabaseClient
+  //       .from(`liked_playlists`)
+  //       .select("*")
+  //       .eq("user_id", user.id)
+  //       .eq(`playlist_id`, playlist?.id)
+  //       .single();
 
-      if (!error && data && !isLiked) {
-        likedPlaylists.toggle(playlist?.id!);
-      }
-    };
+  //     if (!error && data && !isLiked) {
+  //       likedPlaylists.toggle(playlist?.id!);
+  //     }
+  //   };
 
-    fetchData();
-  }, [playlist, supabaseClient, user?.id]);
+  //   console.log("Загружаю")
+  //   fetchData();
+  // }, [playlist, supabaseClient, user?.id]);
 
   const handleLike = useCallback(async () => {
     if (!user) {
@@ -78,7 +82,7 @@ const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null)
       likedPlaylists.toggle(playlist?.id!);
       toast.success("Liked");
     }
-  }, [user, router, authModal, supabaseClient, isLiked, playlist]);
+  }, [user, authModal, supabaseClient, isLiked, playlist, likedPlaylists]);
 
   const createPlaylist = async () => {
     if (!user) {
@@ -129,6 +133,7 @@ const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null)
     if (!user || !playlist || user.id !== playlist.user_id) return;
 
     try {
+      setIsLoading(true);
       const { error } = await supabaseClient
         .from("playlists")
         .delete()
@@ -136,14 +141,20 @@ const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null)
 
       if (error) {
         toast.error(error.message);
+        setIsLoading(false);
       }
 
       toast.success("Playlist deleted");
+      deleteConfirmationModal.onClose();
+      setIsLoading(false);
       router.refresh();
       if (pathname === `/playlist/${playlist.id}`) router.push("/");
 
     } catch (error) {
       toast.error("Something went wrong");
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
     }
   }, [user, router, pathname, supabaseClient, playlist]);
 
@@ -159,7 +170,7 @@ const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null)
       },
       {
         label: "Delete",
-        onClick: deletePlaylist,
+        onClick: () => deleteConfirmationModal.onOpen(playlist!),
       },
     ] : [
       {
@@ -170,9 +181,10 @@ const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null)
         label: isLiked ? "Remove from your library" : "Add to your library",
         onClick: handleLike,
       }
-    ], [user, isLiked, handleLike, playlist, addToQueue, editDetails, deletePlaylist]);
+    ], [user, isLiked, handleLike, playlist, addToQueue, editDetails, deleteConfirmationModal]);
 
   return {
+    isLoading,
     isLiked,
     handleLike,
     createPlaylist,

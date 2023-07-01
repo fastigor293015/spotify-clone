@@ -9,11 +9,11 @@ import { useUser } from "@/hooks/useUser";
 const Player = () => {
   const player = usePlayer();
   const { user } = useUser();
-  const { song } = useGetSongById(player.activeId);
+  const { song, isLoading } = useGetSongById(player.activeId);
 
   const songUrl = useLoadSongUrl(song!);
 
-  if (!song || !songUrl || !player.activeId || !user) {
+  if (!song || !songUrl || !player.activeId || !user || isLoading) {
     return null;
   }
 
