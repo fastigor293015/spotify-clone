@@ -76,7 +76,7 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
               "
             >
               <label
-                onClick={playlistEditModal.onOpen}
+                onClick={editDetails}
                 htmlFor="upload-image"
                 className={twMerge(`
                   relative

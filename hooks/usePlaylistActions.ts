@@ -84,7 +84,7 @@ const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null)
     }
   }, [user, authModal, supabaseClient, isLiked, playlist, likedPlaylists]);
 
-  const createPlaylist = async () => {
+  const createPlaylist = useCallback(async () => {
     if (!user) {
       return authModal.onOpen();
     }
@@ -116,7 +116,7 @@ const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null)
     } catch (error) {
       toast.error("Something went wrong");
     }
-  }
+  }, [router, supabaseClient, subscribeModal, authModal, subscription, user]);
 
   const addToQueue = useCallback(() => {
     if (!playlist) return;
@@ -124,7 +124,7 @@ const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null)
   }, [player, playlist]);
 
   const editDetails = useCallback(() => {
-    if (!user || !playlist || !publicImageUrl || user.id !== playlist.user_id) return;
+    if (!user || !playlist || user.id !== playlist.user_id) return;
     playlistEditModal.setData({ ...playlist, image_path: publicImageUrl });
     playlistEditModal.onOpen();
   }, [user, playlistEditModal, playlist, publicImageUrl]);
@@ -156,7 +156,7 @@ const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null)
     } finally {
       setIsLoading(false);
     }
-  }, [user, router, pathname, supabaseClient, playlist]);
+  }, [user, router, pathname, supabaseClient, playlist, deleteConfirmationModal]);
 
   const dropdownItems = useMemo((): DropdownItem[] => playlist?.id === "liked" ? []
     : playlist?.user_id === user?.id ? [

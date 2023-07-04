@@ -47,6 +47,8 @@ const PlayButton: React.FC<PlayButtonProps> = ({
         p-4
         border-none
         drop-shadow-md
+        transition
+        duration-200
       `,
         className,
         isActivePlaylist && player.isPlaying && "opacity-100 translate-y-0"
