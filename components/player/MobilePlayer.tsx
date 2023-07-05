@@ -11,13 +11,13 @@ import useImageDominantColor from "@/hooks/useImageDominantColor";
 import { BsPauseFill, BsPlayFill } from "react-icons/bs";
 import { IoIosArrowDown } from "react-icons/io";
 import { RxDotsHorizontal } from "react-icons/rx";
-import { HiOutlineArrowPathRoundedSquare } from "react-icons/hi2";
+import { HiOutlineArrowPathRoundedSquare, HiOutlineQueueList } from "react-icons/hi2";
 import { AiFillStepBackward, AiFillStepForward } from "react-icons/ai";
 import LikeButton from "../buttons/LikeButton";
 import Slider from "../Slider";
-import QueueButton from "../buttons/QueueButton";
 import { formatTime } from "@/utils";
 import { Song } from "@/types";
+import PlayerButton from "../buttons/PlayerButton";
 
 interface MobilePlayerProps {
   song: Song;
@@ -148,7 +148,7 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
             </div>
           </div>
           <div className="flex items-center justify-between mb-16 px-3">
-            <QueueButton iconSize={35} />
+          <PlayerButton href="/lyrics" icon={HiOutlineQueueList} iconSize={35} />
             <button onClick={player.onPlayPrev}>
               <AiFillStepBackward size={35} />
             </button>

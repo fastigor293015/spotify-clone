@@ -15,7 +15,7 @@ import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import Button from "./buttons/Button";
 
 interface HeaderProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   bgcolor?: string;
   stickyContent?: React.ReactNode;
   scrollValue?: number;
@@ -221,9 +221,11 @@ const Header: React.FC<HeaderProps> = ({
         `, (pathname === "/liked" || pathname.includes("/playlist/")) && "h-[400px]")}
         style={{ color:  bgcolor }}
       />
-      <div className="relative z-[1] p-6 pt-0">
-        {children}
-      </div>
+      {children && (
+        <div className="relative z-[1] p-6 pt-0">
+          {children}
+        </div>
+      )}
     </>
   );
 }

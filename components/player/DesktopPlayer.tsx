@@ -10,10 +10,12 @@ import { BsPauseFill, BsPlayFill } from "react-icons/bs";
 import { LuVolumeX, LuVolume1, LuVolume2 } from "react-icons/lu";
 import LikeButton from "../buttons/LikeButton";
 import Slider from "../Slider";
-import QueueButton from "../buttons/QueueButton";
 import { formatTime } from "@/utils";
 import { Song } from "@/types";
 import useSongActions from "@/hooks/useSongActions";
+import { TbMicrophone2 } from "react-icons/tb";
+import PlayerButton from "../buttons/PlayerButton";
+import { HiOutlineQueueList } from "react-icons/hi2";
 
 interface DesktopPlayerProps {
   song: Song;
@@ -194,7 +196,8 @@ const DesktopPlayer: React.FC<DesktopPlayerProps> = ({
       </div>
 
       <div className="flex items-center gap-x-3 w-full justify-end pr-2">
-        <QueueButton />
+        <PlayerButton href="/lyrics" icon={TbMicrophone2} />
+        <PlayerButton href="/queue" icon={HiOutlineQueueList} />
         <div className="flex items-center gap-x-2 w-[120px]">
           <VolumeIcon
             onClick={toggleMute}

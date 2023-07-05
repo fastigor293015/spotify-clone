@@ -2,16 +2,20 @@
 
 import usePlayer from "@/hooks/usePlayer";
 import { usePathname, useRouter } from "next/navigation";
-import { HiOutlineQueueList } from "react-icons/hi2";
+import { IconType } from "react-icons";
 import { twMerge } from "tailwind-merge";
 
-interface QueueButtonProps {
+interface PlayerButtonProps {
   className?: string;
+  href: string;
+  icon: IconType;
   iconSize?: number;
 }
 
-const QueueButton: React.FC<QueueButtonProps> = ({
+const PlayerButton: React.FC<PlayerButtonProps> = ({
   className,
+  href,
+  icon: Icon,
   iconSize = 20,
 }) => {
   const router = useRouter();
@@ -19,15 +23,15 @@ const QueueButton: React.FC<QueueButtonProps> = ({
   const player = usePlayer();
 
   return (
-    <button className={twMerge(`relative text-white cursor-pointer`, pathname === "/queue" && "text-green-500")}>
-      <HiOutlineQueueList onClick={() => {
-        if (pathname !== "/queue") {
-          router.push("/queue");
+    <button className={twMerge(`relative text-white cursor-pointer`, className, pathname === href && "text-green-500")}>
+      <Icon size={iconSize} onClick={() => {
+        if (pathname !== href) {
+          router.push(href);
           player.setIsMobilePlayerOpen(false);
         } else {
           router.back();
         }
-      }} size={iconSize} />
+      }} />
       <div className={twMerge(`
         absolute
         top-[calc(100%+2px)]
@@ -37,9 +41,9 @@ const QueueButton: React.FC<QueueButtonProps> = ({
         rounded-full
         bg-current
         opacity-0
-      `, pathname === "/queue" && "opacity-100")} />
+      `, pathname === href && "opacity-100")} />
     </button>
   );
 }
 
-export default QueueButton;
+export default PlayerButton;
