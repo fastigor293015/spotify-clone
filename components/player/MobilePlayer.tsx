@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import useInterval from "@/hooks/useInterval";
@@ -42,6 +42,11 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
   const trackDuration = useMemo(() => {
     return formatTime(parseInt(song.duration));
   }, [song]);
+
+  useEffect(() => {
+    if (!imageColor) return;
+    player.setBgcolor(imageColor);
+  }, [imageColor]);
 
   const handlePlay = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();

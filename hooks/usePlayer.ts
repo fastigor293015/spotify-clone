@@ -9,6 +9,7 @@ interface PlayerStore {
   activeIndex: number;
   playlistId?: string;
   playlistName?: string;
+  bgcolor: string;
   lyrics?: string;
   volume: number;
   isMobilePlayerOpen: boolean;
@@ -18,6 +19,7 @@ interface PlayerStore {
   onPlayNext: () => void;
   onPlayPrev: () => void;
   setId: (id: string, index: number) => void;
+  setBgcolor: (bgcolor: string) => void;
   setLyrics: (lyrics?: string) => void;
   setIds: (ids: string[], playlistId?: string, playlistName?: string) => void;
   addToQueue: (ids: string[]) => void;
@@ -34,6 +36,7 @@ const usePlayer = create<PlayerStore>()(
       ids: [],
       activeId: undefined,
       activeIndex: 0,
+      bgcolor: "#000",
       lyrics: undefined,
       volume: 1,
       isMobilePlayerOpen: false,
@@ -66,7 +69,8 @@ const usePlayer = create<PlayerStore>()(
 
         get().setId(prevSong, get().activeIndex - 1);
       },
-      setId: (id: string, index: number) => set({ activeId: id, activeIndex: index}),
+      setId: (id: string, index: number) => set({ activeId: id, activeIndex: index }),
+      setBgcolor: (bgcolor: string) => set({ bgcolor }),
       setLyrics: (lyrics?: string) => set({ lyrics }),
       setIds: (ids: string[], playlistId?: string, playlistName?: string) => set({ ids, playlistId, playlistName }),
       addToQueue: (ids: string[]) => {

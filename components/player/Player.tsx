@@ -18,10 +18,12 @@ const Player = () => {
     const getLyrics = async () => {
       if (!song) return;
 
-      const trackResponse = await fetch(`https://api.musixmatch.com/ws/1.1/track.search?q_artist=${song.author}&q_track=${song.title}&s_track_rating=desc&apikey=4d014072b0915be84ad8479706abefc4`);
+      const API_KEY = "4d014072b0915be84ad8479706abefc4";
+
+      const trackResponse = await fetch(`https://cors-anywhere.herokuapp.com/https://api.musixmatch.com/ws/1.1/track.search?q_artist=${song.author}&q_track=${song.title}&s_track_rating=desc&apikey=${API_KEY}`);
       const data = await trackResponse.json();
 
-      const lyricsResponse = await fetch(`https://api.musixmatch.com/ws/1.1/track.lyrics.get?track_id=${data.message.body.track_list[0].track.track_id}&apikey=4d014072b0915be84ad8479706abefc4`);
+      const lyricsResponse = await fetch(`https://cors-anywhere.herokuapp.com/https://api.musixmatch.com/ws/1.1/track.lyrics.get?track_id=${data.message.body.track_list[0].track.track_id}&apikey=${API_KEY}`);
       const lyricsData = await lyricsResponse.json();
       player.setLyrics(lyricsData.message.body.lyrics.lyrics_body);
       console.log(data);

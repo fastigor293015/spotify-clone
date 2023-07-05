@@ -76,12 +76,11 @@ const Header: React.FC<HeaderProps> = ({
         justify-between
         w-full
         h-[68px]
-        mb-2
         py-4
         px-6
         gap-2
         text-neutral-900
-      `)}>
+      `, children && "mb-2")}>
         <div className="absolute inset-0 -z-[1] bg-current transition-colors duration-300" style={{ opacity: bgOpacity, color: bgcolor }} />
         <div className="
           hidden

@@ -11,7 +11,7 @@ const LyricsPage = () => {
         overflow-y-auto
       "
     >
-      <Header />
+      <Header bgcolor="transparent" />
       <div className="relative z-[1]">
         <LyricsContent />
       </div>
