@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { RiMusic2Line } from "react-icons/ri";
 import Image from "next/image";
 import useGetSongsByIds from "@/hooks/useGetSongsByIds";
-import usePlaylistEditModal from "@/hooks/usePlaylistEditModal";
+import usePlaylistEditModal, { EPlaylistEditInputsIds } from "@/hooks/usePlaylistEditModal";
 import { Playlist, Song } from "@/types";
 import Header from "@/components/Header";
 import MediaItem from "@/components/MediaItem";
@@ -75,9 +75,8 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
                 gap-5
               "
             >
-              <label
-                onClick={editDetails}
-                htmlFor="upload-image"
+              <div
+                onClick={() => editDetails(EPlaylistEditInputsIds.image)}
                 className={twMerge(`
                   relative
                   flex
@@ -108,7 +107,7 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
                   <HiOutlinePencil className="w-[40px] h-[40px] md:w-[50px] md:h-[50px]" />
                   <p>Choose a photo</p>
                 </div>
-              </label>
+              </div>
               <div className="
                 flex
                 flex-col
@@ -120,7 +119,7 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
                   Playlist
                 </p>
                 <h1
-                  onClick={editDetails}
+                  onClick={() => editDetails(EPlaylistEditInputsIds.title)}
                   className="
                     text-white
                     text-4xl
@@ -138,7 +137,7 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
                   {playlist.title}
                 </h1>
                 {playlist.description && (
-                  <p onClick={editDetails} className="text-sm text-white/70">{playlist.description}</p>
+                  <p onClick={() => editDetails(EPlaylistEditInputsIds.description)} className="text-sm text-white/70">{playlist.description}</p>
                 )}
                 <p className="text-sm font-bold">
                   {playlist.email}

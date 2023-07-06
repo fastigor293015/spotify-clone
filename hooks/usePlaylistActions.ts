@@ -5,7 +5,7 @@ import { useUser } from "./useUser";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { toast } from "react-hot-toast";
 import { usePathname, useRouter } from "next/navigation";
-import usePlaylistEditModal from "./usePlaylistEditModal";
+import usePlaylistEditModal, { EPlaylistEditInputsIds } from "./usePlaylistEditModal";
 import useAuthModal from "./useAuthModal";
 import useSubscribeModal from "./useSubscribeModal";
 import { DropdownItem } from "@/components/DropdownMenu";
@@ -123,10 +123,10 @@ const usePlaylistActions = (playlist?: Playlist, publicImageUrl?: string | null)
     player.addToQueue(playlist.songs);
   }, [player, playlist]);
 
-  const editDetails = useCallback(() => {
+  const editDetails = useCallback((inputId?: EPlaylistEditInputsIds) => {
     if (!user || !playlist || user.id !== playlist.user_id) return;
     playlistEditModal.setData({ ...playlist, image_path: publicImageUrl });
-    playlistEditModal.onOpen();
+    playlistEditModal.onOpen(inputId);
   }, [user, playlistEditModal, playlist, publicImageUrl]);
 
   const deletePlaylist = useCallback(async () => {

@@ -134,7 +134,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
         />
       )}
       {addBtn && !isInCurPlaylist ? (
-        <Button onClick={addToCurPlaylist} className="w-auto mr-1 py-1 px-4 border-white/80 text-sm text-white bg-transparent hover:scale-110 hover:border-white hover:opacity-100" disabled={isLoading}>
+        <Button onClick={addToCurPlaylist} className="mr-1 py-1 px-4 border-white/80 text-sm text-white bg-transparent hover:border-white" disabled={isLoading}>
           Add
         </Button>
       ) : (
