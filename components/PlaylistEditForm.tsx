@@ -209,10 +209,10 @@ const PlaylistEditForm = () => {
         </DropdownMenu>
       </label>
       <label ref={titleLabelRef} htmlFor={EPlaylistEditInputsIds.title} className="col-span-2 sm:col-span-1">
-        <Input id={EPlaylistEditInputsIds.title} className="h-[40px]" disabled={isLoading} placeholder="Name" {...register("title")} />
+        <Input id={EPlaylistEditInputsIds.title} className="h-[40px]" maxLength={100} disabled={isLoading} placeholder="Name" {...register("title")} />
       </label>
       <label ref={descLabelRef} htmlFor={EPlaylistEditInputsIds.description} className="col-span-2 sm:col-span-1">
-        <Textarea id={EPlaylistEditInputsIds.description} className="resize-none h-[124px]" disabled={isLoading} placeholder="Description" {...register("description")} />
+        <Textarea id={EPlaylistEditInputsIds.description} className="resize-none h-[124px]" maxLength={300} disabled={isLoading} placeholder="Description" {...register("description")} />
       </label>
 
       <div className="col-span-2 text-right">

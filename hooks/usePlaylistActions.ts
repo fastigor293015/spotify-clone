@@ -1,5 +1,5 @@
 import { Playlist } from "@/types";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import usePlayer from "./usePlayer";
 import { useUser } from "./useUser";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";

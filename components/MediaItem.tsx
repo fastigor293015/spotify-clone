@@ -130,7 +130,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
         <LikeButton
           isLiked={isLiked}
           handleLike={handleLike}
-          className="mr-2 hidden group-hover:block transition-colors"
+          className="hidden group-hover:block transition-colors"
         />
       )}
       {addBtn && !isInCurPlaylist ? (
@@ -139,7 +139,7 @@ const MediaItem: React.FC<MediaItemProps> = ({
         </Button>
       ) : (
         <>
-          <div className="text-sm text-neutral-400">{songDuration}</div>
+          <div className="flex justify-end w-[5ch] text-sm text-neutral-400">{songDuration}</div>
           <DropdownMenu items={dropdownItems} className="mx-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto" align="end">
             <RxDotsHorizontal size={20} />
           </DropdownMenu>

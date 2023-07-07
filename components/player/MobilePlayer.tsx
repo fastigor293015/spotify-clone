@@ -153,7 +153,7 @@ const MobilePlayer: React.FC<MobilePlayerProps> = ({
             </div>
           </div>
           <div className="flex items-center justify-between mb-16 px-3">
-          <PlayerButton href="/lyrics" icon={HiOutlineQueueList} iconSize={35} />
+          <PlayerButton href="/queue" icon={HiOutlineQueueList} iconSize={35} />
             <button onClick={player.onPlayPrev}>
               <AiFillStepBackward size={35} />
             </button>

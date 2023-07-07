@@ -1,25 +1,24 @@
 "use client";
 
-import { useEffect } from "react";
-import { RiMusic2Line } from "react-icons/ri";
 import Image from "next/image";
 import useGetSongsByIds from "@/hooks/useGetSongsByIds";
-import usePlaylistEditModal, { EPlaylistEditInputsIds } from "@/hooks/usePlaylistEditModal";
-import { Playlist, Song } from "@/types";
-import Header from "@/components/Header";
-import MediaItem from "@/components/MediaItem";
+import { EPlaylistEditInputsIds } from "@/hooks/usePlaylistEditModal";
 import useLoadImage from "@/hooks/useLoadImage";
 import { useUser } from "@/hooks/useUser";
-import { twMerge } from "tailwind-merge";
 import useImageDominantColor from "@/hooks/useImageDominantColor";
-import PlayButton from "@/components/buttons/PlayButton";
-import DropdownMenu from "@/components/DropdownMenu";
-import { RxDotsHorizontal } from "react-icons/rx";
-import LikeButton from "@/components/buttons/LikeButton";
 import usePlayActions from "@/hooks/usePlayActions";
 import usePlaylistActions from "@/hooks/usePlaylistActions";
-import ContextMenu from "@/components/ContextMenu";
+import { RiMusic2Line } from "react-icons/ri";
+import { RxDotsHorizontal } from "react-icons/rx";
 import { HiOutlinePencil } from "react-icons/hi";
+import { twMerge } from "tailwind-merge";
+import Header from "@/components/Header";
+import MediaItem from "@/components/MediaItem";
+import PlayButton from "@/components/buttons/PlayButton";
+import DropdownMenu from "@/components/DropdownMenu";
+import LikeButton from "@/components/buttons/LikeButton";
+import ContextMenu from "@/components/ContextMenu";
+import { Playlist, Song } from "@/types";
 
 interface PlaylistContentProps {
   playlist: Playlist;
@@ -30,7 +29,6 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
   playlist,
   recommendedSongs
 }) => {
-  const playlistEditModal = usePlaylistEditModal();
   const playActions = usePlayActions(playlist.songs, playlist.id, playlist.title);
   const recommendedPlayActions = usePlayActions(recommendedSongs.map((song) => song.id));
   const { songs } = useGetSongsByIds(playlist.songs);
@@ -39,12 +37,6 @@ const PlaylistContent: React.FC<PlaylistContentProps> = ({
   const { isLiked, handleLike, editDetails, dropdownItems } = usePlaylistActions(playlist, playlistImage);
   const headerColor = useImageDominantColor(playlistImage);
   const { user } = useUser();
-
-  useEffect(() => {
-    if (!playlist) return;
-    playlistEditModal.setData({ ...playlist, image_path: playlistImage });
-    console.log(playlistEditModal.playlistData);
-  }, [playlist, playlistImage]);
 
   const stickyContent = (
     <div className="flex items-center gap-2">
