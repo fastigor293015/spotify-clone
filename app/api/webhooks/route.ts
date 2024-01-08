@@ -31,7 +31,6 @@ export async function POST(
 
   try {
     if (!sig || !webhookSecret) {
-      console.log("Дело пахнет писюнами")
       return;
     }
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
